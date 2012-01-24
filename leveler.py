@@ -270,7 +270,8 @@ def runLeveler(kLeveler=0.018,
         name = 'distance variable',
         mesh = mesh,
         value = -1.,
-        narrowBandWidth = narrowBandWidth)
+        narrowBandWidth = narrowBandWidth,
+        hasOld=True)
 
     distanceVar.setValue(1., where=mesh.electrolyteMask)
     
@@ -278,28 +279,31 @@ def runLeveler(kLeveler=0.018,
     levelerVar = SurfactantVariable(
         name = "leveler variable",
         value = initialLevelerCoverage,
-        distanceVar = distanceVar)
+        distanceVar = distanceVar,
+        hasOld=True)
 
     acceleratorVar = SurfactantVariable(
         name = "accelerator variable",
         value = initialAcceleratorCoverage,
-        distanceVar = distanceVar)
+        distanceVar = distanceVar,
+        hasOld=True)
 
     bulkAcceleratorVar = CellVariable(name = 'bulk accelerator variable',
                                       mesh = mesh,
-                                      value = bulkAcceleratorConcentration)
+                                      value = bulkAcceleratorConcentration,
+                                      hasOld=True)
 
     bulkLevelerVar = CellVariable(
         name = 'bulk leveler variable',
         mesh = mesh,
-        value = bulkLevelerConcentration)
+        value = bulkLevelerConcentration,
+        hasOld=True)
 
     metalVar = CellVariable(
         name = 'metal variable',
         mesh = mesh,
-        value = bulkMetalConcentration)
-
-    consumed = CellVariable(name='consumed', mesh=mesh)
+        value = bulkMetalConcentration,
+        hasOld = True)
 
     def depositionCoeff(alpha, i0):
         expo = numerix.exp(-alpha * etaPrime)
@@ -393,36 +397,47 @@ def runLeveler(kLeveler=0.018,
         # viewers = (
         #     MatplotlibSurfactantViewer(distanceVar, acceleratorVar.interfaceVar, zoomFactor = 1e6, datamax=0.5, datamin=0.0, smooth = 1, title = 'accelerator coverage'),
         #     MatplotlibSurfactantViewer(distanceVar, levelerVar.interfaceVar, zoomFactor = 1e6, datamax=0.5, datamin=0.0, smooth = 1, title = 'leveler coverage'))
-        consumedViewer = Viewer(consumed, limits={'ymax' : 1e-6})
+
 
     for step in range(numberOfSteps):
+
+##        from ipdb import set_trace; set_trace()
+
+
+        for eqn, var, BCs, solver in eqnTuple:
+            if var._old is not None:
+                var.updateOld()
 
         if displayViewers:
             if step % displayRate == 0:
                 viewers[0].plot('acc' + str(i0Suppressor) + '.png')
-                consumedViewer.plot()
 
         if step % levelSetUpdateFrequency == 0:
             distanceVar.calcDistanceFunction(deleteIslands = True)
 
-        extensionVelocityVariable.setValue(depositionRateVariable)
+        sweeps = 5
+        for sweep in range(sweeps):
 
-        extOnInt = numerix.where(distanceVar > 0,
-                                 numerix.where(distanceVar < 2 * cellSize,
-                                               extensionVelocityVariable,
-                                               0),
-                                 0)
+            extensionVelocityVariable.setValue(depositionRateVariable)
 
-        dt = cflNumber * cellSize / extOnInt.max()
+            extOnInt = numerix.where(distanceVar > 0,
+                                     numerix.where(distanceVar < 2 * cellSize,
+                                                   extensionVelocityVariable,
+                                                   0),
+                                     0)
 
-        distanceVar.extendVariable(extensionVelocityVariable, deleteIslands = True)
+            dt = cflNumber * cellSize / extOnInt.max()
 
-        extensionVelocityVariable[mesh.fineMesh.numberOfCells:] = 0.
+            distanceVar.extendVariable(extensionVelocityVariable, deleteIslands = True)
 
-        consumed.setValue(consumed.value + dt * siteDensity * accConsumptionCoeff.value * acceleratorVar.value)
+            extensionVelocityVariable[mesh.fineMesh.numberOfCells:] = 0.
 
-        for eqn, var, BCs, solver in eqnTuple:
-            eqn.solve(var, boundaryConditions = BCs, dt = dt, solver=solver)
+            residuals = numerix.array([eqn.sweep(var, boundaryConditions = BCs, dt = dt, solver=solver) for eqn, var, BCs, solver in eqnTuple])
+                
+            if sweep == 0:
+                initialResiduals = residuals
+
+            print residuals / initialResiduals
 
         totalTime += dt
 
