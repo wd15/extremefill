@@ -253,8 +253,6 @@ def runLeveler(kLeveler=0.018,
     Vd = 0.098
     Bd = 0.0008
 
-    etaPrime = faradaysConstant * overpotential / gasConstant / temperature
-
     mesh = TrenchMesh(cellSize = cellSize,
                       trenchSpacing = trenchSpacing,
                       trenchDepth = trenchDepth,
@@ -304,6 +302,12 @@ def runLeveler(kLeveler=0.018,
         mesh = mesh,
         value = bulkMetalConcentration,
         hasOld = True)
+
+    VCELL = -0.275
+    VIR = CellVariable(mesh=mesh, value=0.)
+    VDL = VCELL - VIR
+
+    etaPrime = faradaysConstant * VDL / gasConstant / temperature
 
     def depositionCoeff(alpha, i0):
         expo = numerix.exp(-alpha * etaPrime)
@@ -432,7 +436,7 @@ def runLeveler(kLeveler=0.018,
 
             extensionVelocityVariable[mesh.fineMesh.numberOfCells:] = 0.
 
-            residuals = numerix.array([eqn.sweep(var, boundaryConditions = BCs, dt = dt, solver=solver) for eqn, var, BCs, solver in eqnTuple])
+            residuals = numerix.array([eqn.sweep(var, boundary, solver in eqnTuple])
                 
             if sweep == 0:
                 initialResiduals = residuals
