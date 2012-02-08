@@ -25,11 +25,11 @@ def iF(V_IR):
 
 def RHS(t, y):
     V_IR = y[0]
-    return ((iF(V_IR) - kappa * V_IR / delta) / C_DL,)
+    return (-(iF(V_IR) + kappa * V_IR / delta) / C_DL,)
 
 def jacobian(t, y):
     V_IR = y[0]
-    return ((alphabar * iF(V_IR) - kappa / delta) / C_DL,)
+    return (-(alphabar * iF(V_IR) + kappa / delta) / C_DL,)
 
 
 from scipy.integrate import ode
@@ -39,7 +39,7 @@ integrator.set_initial_value(0., 0.)
 
 times = []
 V_IRs = []
-dt = 1e-6
+dt = 1e-7
 while integrator.successful() and integrator.t < 100.0e-6:
     integrator.integrate(integrator.t + dt)
     print integrator.t, integrator.y
