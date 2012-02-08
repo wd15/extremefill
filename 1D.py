@@ -47,6 +47,10 @@ while integrator.successful() and integrator.t < 100.0e-6:
     times.append(integrator.t)
     V_IRs.append(integrator.y[0])
 
+print 'V_IR',V_IRs[-1]
+print 'i_F',iF(V_IRs[-1])
+print 'V_DL',V_CELL - V_IRs[-1]
+
 import pylab
 pylab.figure()
 pylab.plot(times, V_IRs)
