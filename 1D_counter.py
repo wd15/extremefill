@@ -72,6 +72,7 @@ print 'VC_DL',VC_DL
 print 'VW_IR',VW_IR
 print 'VC_IR',VC_IR
 print 'V_CELL',VW_DL + VW_IR - VC_IR - VC_DL
+print 'i_T',iT(VW_DL, VC_DL)
 
 import pylab
 pylab.figure()
