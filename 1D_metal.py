@@ -5,13 +5,14 @@
 Here we just integrate the 1D ODE that solves the electrical problem.
 See http://matforge.org/wd15/blog/MoffatElectrical for details.
 
+
 """
 
 import numpy
 
 ## numbers
 i0 = 40. ## A / m**2
-alpha = 0.5
+alpha = 0.4
 F = 9.6485e4 ## C / mol = J / V / mol
 V_APPLIED = -0.275 ## V
 R = 8.314 ## J / K / mol
@@ -21,29 +22,39 @@ delta = 100e-6
 delta_W = 50e-6 ## m
 C_DL = 0.3 ## F / m**2 = A s / V / m**2  
 Fbar = F / R / T
+D_c = 5e-10 ## m**2 / s
+c_inf = 250. ## mol / m**3
 
+def E(V):
+    return numpy.exp(-alpha * Fbar * V) - numpy.exp((2 - alpha) * Fbar * V)
 
-def iT(VW, VC):
+def iT(VW):
     return -kappa / delta_W * (V_APPLIED - VW)
 
-def iF(V):
-    return i0 * (numpy.exp(-alpha * Fbar * V) - numpy.exp((1 - alpha) * Fbar * V))
+def iF_W(VW, t):
+    k = numpy.pi / 2 / delta
+    brac = numpy.exp(-k * D_c * t) / k - delta
+    return i0 * E(VW) / (1. - brac / 2 / F / D_c / c_inf * i0 * E(VW))
 
-def iF_V(V):
+def iF_C(VC):
+    return i0 * E(VC)
+
+def iF_derivative(V):
     return i0 * (-alpha * Fbar * numpy.exp(-alpha * Fbar * V) \
-                      - (1 - alpha) * Fbar * numpy.exp((1 - alpha) * Fbar * V))
+                      - (2 - alpha) * Fbar * numpy.exp((2 - alpha) * Fbar * V))
 
 def RHS(t, y):
     VW, VC = y
-    return numpy.array([(iF(VW) - iT(VW, VC)) / C_DL,
-                        (iF(VC) + iT(VW, VC)) / C_DL])
+    return numpy.array([(iF_W(VW, t) - iT(VW)) / C_DL,
+                        (iF_C(VC) + iT(VW)) / C_DL])
 
+FIX THIS
 def jacobian(t, y):
     VW, VC = y
-    return numpy.array([[(iF_V(VW) - kappa / delta_W) / C_DL,
+    return numpy.array([[(iF_derivative(VW) - kappa / delta_W) / C_DL,
                          0],
                         [kappa / delta_W / C_DL,
-                         iF_V(VC) / C_DL]])
+                         iF_derivative(VC) / C_DL]])
 
 from scipy.integrate import ode
 
@@ -73,14 +84,13 @@ print 'VW_IR',VW_IR
 print 'VC_IR',VC_IR
 print 'V_CELL',VW_DL + VW_IR - VC_IR - VC_DL
 print 'i_T',iT(VW_DL, VC_DL)
-print 'i_F',iF(VW_DL)
 
 import pylab
 pylab.figure()
 pylab.plot(times, numpy.array(V_DLs)[:,0], times, numpy.array(V_DLs)[:,1])
 pylab.ylabel(r'$V_{DL}$')
 pylab.xlabel(r'$t$')
-pylab.savefig('voltageVersusTimeSymmetry.png')
+pylab.savefig('voltageVersusTimeCounter.png')
 
 # pylab.figure()
 # pylab.plot(times, iF(numpy.array(V_IRs)))
