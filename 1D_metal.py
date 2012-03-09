@@ -18,7 +18,7 @@ V_APPLIED = -0.275 ## V
 R = 8.314 ## J / K / mol
 T = 298.0 ## K
 kappa = 15.26 ## S / m = A / V / m
-delta = 100e-8
+delta = 100e-9
 delta_W = delta / 2 ## m
 C_DL = 0.3 ## F / m**2 = A s / V / m**2  
 D_c = 5e-10 ## m**2 / s
@@ -98,14 +98,16 @@ print 'VW_IR',VW_IR
 print 'VC_IR',VC_IR
 print 'V_CELL',VW_DL + VW_IR - VC_IR - VC_DL
 print 'i_T',iT(VW_DL)
-print 'dimensionless parameter << 1:',delta * iF0(V_APPLIED) / c_inf / 2 / F / D_c
+param1 = delta * iF0(V_APPLIED) / c_inf / 2 / F / D_c
+print 'dimensionless parameter 1 << 1:',delta * iF0(V_APPLIED) / c_inf / 2 / F / D_c
+print 'dimensionless parameter 2 << 1:',param1 * alpha * F * V_APPLIED / R / T
 
 import pylab
 pylab.figure()
 pylab.semilogx(times, numpy.array(V_DLs)[:,0], times, numpy.array(V_DLs)[:,1])
 pylab.ylabel(r'$V_{DL}$')
 pylab.xlabel(r'$t$')
-pylab.savefig('voltageVersusTimeCounter.png')
+pylab.savefig('voltageVersusTimeCopper.png')
 
 N = 1000
 x = numpy.arange(N) / float(N - 1) * delta
