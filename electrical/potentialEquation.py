@@ -37,41 +37,58 @@
 __docformat__ = 'restructuredtext'
 
 
-from fipy.terms.implicitSourceTerm import ImplicitSourceTerm
+#from fipy.terms.implicitSourceTerm import ImplicitSourceTerm
+from fipy import CellVariable
 from fipy.models.levelSet.distanceFunction.levelSetDiffusionEquation import _buildLevelSetDiffusionEquation
-from fipy.models.levelSet.electroChem.metalIonSourceVariable import _MetalIonSourceVariable
+#from fipy.models.levelSet.electroChem.metalIonSourceVariable import _MetalIonSourceVariable
 
-__all__ = ["potentialEquation"]
+__all__ = ["PotentialEquation"]
 
-def potentialEquation(var = None,
-                      distanceVar = None,
-                      currentDensity = None,
+class _InterfaceAreas(CellVariable):
+    def __init__(self, distanceVar, capacitance):
+        super(_InterfaceAreas, self).__init__(distanceVar.mesh, hasOld=0)
+        self.distanceVar = self._requires(distanceVar)
+
+    def _calcValue(self):
+        return self.distanceVar.cellInterfaceAreas.value
+
+def PotentialEquation(var=None,
+                      distanceVar=None,
+                      currentDensity=None,
                       conductivity=None,
                       capacitance=None):
 
     r"""
-
-    The `potentialEquation` function generates an equation that models the
-    potential distribution and double layer voltage build up at the zero level
-    set. The governing equation is given by,
+    The `PotentialEquation` function is a factory function for
+    generating a FiPy equation that models the electric potential in
+    an electrolyte with a specific type of boundary condition. The
+    zero level set marks the working electrode / electrolyte
+    interface. The governing equation is,
 
     .. math::
 
-       \nabla \cdot \nabla  \psi = 0
+       \nabla^2  \psi = 0
 
-    The boundary condition at $\phi=0$ is given by,
+    where :math:`\psi` is the electric potential. The boundary
+    condition at :math:`\phi=0` is given by,
 
     .. math::
 
        c_{DL} \frac{\partial \psi}{\partial t} + i_{F} \left( \psi \right)  = 
        -\kappa \vec{n} \cdot \nabla \psi
 
-    where the normal points out of the electrolyte.
+    where :math:`c_{DL}` is the capacitance, :math:`i_F` is the
+    current density, :math:`\kappa` is the conductance and the normal
+    points out of the electrolyte. In the level set formulation the
+    boundary condition can be included as a source term in the bulk
+    equation.
 
-    Using the a level set implementation the boundary condition is included in the main equation
+    .. math::
        
-    \int \left[ |nabla \phi| \delta \left( \phi \right) \frac{\partial \psi }{\partial t} \right] dV = 
-    \int \nabla \cdot  \left(\kappa_{\phi} \nabla\right)  \psi dV - \int i_F \left( \psi \right) dV
+       \int \left[ |\nabla \phi| \delta \left( \phi \right) \left(
+       \frac{\partial \psi }{\partial t} + i_F  \left( \psi
+       \right)\right)\right] dV = \int \nabla \cdot \left(\kappa_{\phi}
+       \nabla\right) \psi dV
 
     where,
 
@@ -82,26 +99,39 @@ def potentialEquation(var = None,
            0  & \text{when $\phi \le 0$}
        \end{cases}
 
+    Using the approach for modeling surfactants in FiPy, the
+    electrical equation can be written,
+
+    .. math::
+
+       \int \left[
+       \frac{A_{\phi=0}}{V}
+       \frac{\partial \psi }{\partial t} =
+       \nabla \cdot \left(\kappa_{\phi}
+       \nabla\right)
+       - \frac{A_{\phi=0}}{V} i_F
+       \right] dV
+
+    where :math:`A_{\phi=0}` is the area of electrolyte / electrode
+    interface in the control volume.
+
     :Parameters:
       - `var`: The potential variable.
       - `distanceVar`: A `DistanceVariable` object.
       - `currentDensity`: A float or a `CellVariable` representing the current Density.
       - `conductivity`: Float
-      - `capictance`: Float
+      - `capacitance`: Float
 
     """
+    A = _InterfaceAreas(distanceVar)
+    V = var.cellVolumes
 
-    # eq = _buildLevelSetDiffusionEquation(ionVar = ionVar,
-    #                                      distanceVar = distanceVar,
-    #                                      transientCoeff = transientCoeff,
-    #                                      diffusionCoeff = diffusionCoeff)
+    eq = _buildLevelSetDiffusionEquation(ionVar=var,
+                                         distanceVar=distanceVar,
+                                         transientCoeff=capacitance * A / V,
+                                         diffusionCoeff=conductivity)
     
-    # coeff = _MetalIonSourceVariable(ionVar = ionVar,
-    #                                 distanceVar = distanceVar,
-    #                                 depositionRate = depositionRate,
-    #                                 metalIonMolarVolume = metalIonMolarVolume)
-
-    # return eq + ImplicitSourceTerm(coeff)
+    return eq + currentDensity * A / V
 
 def _test(): 
     import fipy.tests.doctestPlus
