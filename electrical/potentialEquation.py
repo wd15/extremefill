@@ -47,7 +47,7 @@ def potentialEquation(var = None,
                       distanceVar = None,
                       currentDensity = None,
                       conductivity=None,
-                      capacitance=None)
+                      capacitance=None):
 
     r"""
 
