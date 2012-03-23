@@ -1,0 +1,183 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to electrical’s documentation! &mdash; electrical 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="electrical 0.1 documentation" href="#" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="#">electrical 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="welcome-to-electrical-s-documentation">
+<h1>Welcome to electrical&#8217;s documentation!<a class="headerlink" href="#welcome-to-electrical-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+<span class="target" id="module-electrical"></span><dl class="function">
+<dt id="electrical.PotentialEquation">
+<tt class="descclassname">electrical.</tt><tt class="descname">PotentialEquation</tt><big>(</big><em>var=None</em>, <em>distanceVar=None</em>, <em>currentDensity=None</em>, <em>conductivity=None</em>, <em>capacitance=None</em><big>)</big><a class="headerlink" href="#electrical.PotentialEquation" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <cite>PotentialEquation</cite> function is a factory function for
+generating a FiPy equation that models the electric potential in
+an electrolyte with a specific type of boundary condition. The
+zero level set marks the working electrode / electrolyte
+interface. The governing equation is,</p>
+<div class="math">
+<p><img src="_images/math/b39472910fddb627ac6f90b3b4d6ab41b0576198.png" alt="\nabla^2  \psi = 0"/></p>
+</div><p>where <img class="math" src="_images/math/8ada738001410f131563551fb68731e4f302048d.png" alt="\psi"/> is the electric potential. The boundary
+condition at <img class="math" src="_images/math/4b5ac570c96fddbeae171074d1bcf7f03113b585.png" alt="\phi=0"/> is given by,</p>
+<div class="math">
+<p><img src="_images/math/007d53081100f93a4c2ca3372ede64e30a7795c9.png" alt="c_{DL} \frac{\partial \psi}{\partial t} + i_{F} \left( \psi \right)  = 
+-\kappa \vec{n} \cdot \nabla \psi"/></p>
+</div><p>where <img class="math" src="_images/math/9ef793c51041baf2d82b58f269cb8e690fdc0c9d.png" alt="c_{DL}"/> is the capacitance, <img class="math" src="_images/math/06fea8a4450dbfaa6a7f331d9f4e7f2c1e26d011.png" alt="i_F"/> is the
+current density, <img class="math" src="_images/math/da61bb0fa48fe71269aebf9c8e56b39275813994.png" alt="\kappa"/> is the conductance and the normal
+points out of the electrolyte. In the level set formulation the
+boundary condition can be included as a source term in the bulk
+equation.</p>
+<div class="math">
+<p><img src="_images/math/3bf3c652efea3ed1a5234bee64592d33e30ef176.png" alt="\int \left[ |\nabla \phi| \delta \left( \phi \right) \left(
+\frac{\partial \psi }{\partial t} + i_F  \left( \psi
+\right)\right)\right] dV = \int \nabla \cdot \left(\kappa_{\phi}
+\nabla\right) \psi dV"/></p>
+</div><p>where,</p>
+<div class="math">
+<p><img src="_images/math/381d64efd40af4dbac919733d9c4ed5004149c41.png" alt="\kappa_{\phi} = \begin{cases}
+    \kappa &amp; \text{when $\phi &gt; 0$} \\
+    0  &amp; \text{when $\phi \le 0$}
+\end{cases}"/></p>
+</div><p>Using the approach for modeling surfactants in FiPy, the
+electrical equation can be written,</p>
+<div class="math">
+<p><img src="_images/math/b53d5232c5d5176ca8f823e94a618df1f3b3a203.png" alt="\int \left[
+\frac{A_{\phi=0}}{V}
+\frac{\partial \psi }{\partial t} =
+\nabla \cdot \left(\kappa_{\phi}
+\nabla\right)
+- \frac{A_{\phi=0}}{V} i_F
+\right] dV"/></p>
+</div><p>where <img class="math" src="_images/math/f4820266c1b7ca5f0600e247c5adf616be6f722d.png" alt="A_{\phi=0}"/> is the area of electrolyte / electrode
+interface in the control volume.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><ul class="first last simple">
+<li><cite>var</cite>: The potential variable.</li>
+<li><cite>distanceVar</cite>: A <cite>DistanceVariable</cite> object.</li>
+<li><cite>currentDensity</cite>: A float or a <cite>CellVariable</cite> representing the current Density.</li>
+<li><cite>conductivity</cite>: Float</li>
+<li><cite>capacitance</cite>: Float</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<div class="section" id="module-electrical.potential">
+<span id="examples"></span><h2>Examples<a class="headerlink" href="#module-electrical.potential" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to electrical&#8217;s documentation!</a><ul>
+<li><a class="reference internal" href="#module-electrical.potential">Examples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="#">electrical 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Daniel Wheeler.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

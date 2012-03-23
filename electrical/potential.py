@@ -1,3 +1,8 @@
+__docformat__ = 'restructuredtext'
+
+r"""
+Stuff
+
 from fipy import Grid1D, DistanceVariable, CellVariable
 from fipy import buildMetalIonDiffusionEquation, numerix
 from potentialEquation import PotentialEquation
@@ -47,7 +52,12 @@ metalEquation = buildMetalIonDiffusionEquation(ionVar=metalVar,
 potentialEqn = PotentialEquation(var=potentialVar,
                                  distanceVar=distanceVar,
                                  diffusionCoeff=kappa,
-                                 capacitance)
+                                 capcapacitance=capacitance)
 
- = diffusionVar._cellInterfaceFlag
-potentialEqn += ImplicitSourceTerm(diffusionMask * largeValue) - diffusionMask * (appliedVoltage - 
+
+##potentialEqn += ImplicitSourceTerm(diffusionMask * largeValue) - diffusionMask * (appliedVoltage - 
+"""
+
+if __name__ == '__main__':
+    import fipy.tests.doctestPlus
+    exec(fipy.tests.doctestPlus._getScript())
