@@ -9,10 +9,13 @@ Welcome to electrical's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 2 
 
+   README
+  
 .. automodule:: electrical
    :members:
+   
    
 --------
 Examples
