@@ -39,7 +39,7 @@ The paramaters are as follows.
 >>> capacitance = 0.3 ## F / m**2 = A s / V / m**2  
 >>> kappa = 15.26 ## S / m = A / V / m
 
-In 1D, we now have an ODE for :math:`\psi` at the interface.
+In 1D, we can write an ODE for :math:`\psi` at the interface.
 
 .. math::
 
@@ -75,16 +75,18 @@ where :math:`\psi` is now only defined at the interface. Using scipy we can solv
 >>> potentialSciPy = numpy.zeros(totalSteps)
 >>> step = 0
 
+We iterate for ``totalSteps`` and save the results for comparison with
+the FiPy solution.
+
 >>> while integrator.successful() and step < totalSteps:
 ...     null = integrator.integrate(integrator.t + dt)
 ...     times[step] = integrator.t
 ...     potentialSciPy[step] = integrator.y[0]
 ...     step += 1
 
-Let's solve this problem with FiPy
+We solve this problem with FiPy using the ``PotentialEquation``.
 
 >>> from fipy import Grid1D, DistanceVariable, CellVariable
->>> from fipy import buildMetalIonDiffusionEquation, numerix
 >>> from potentialEquation import PotentialEquation
 
 >>> L = delta * 1.1
@@ -117,15 +119,23 @@ Let's solve this problem with FiPy
 ...         residual = potentialEqn.sweep(potentialVar, dt=dt)
 ...     potentialFiPy[step] = potentialVar.value[interfaceID]
 
->>> print numerix.allclose(potentialFiPy, potentialSciPy, atol=1e-4)
+>>> print numpy.allclose(potentialFiPy, potentialSciPy, atol=1e-4)
 True
 
 >>> if __name__ == '__main__':
 ...     import pylab
 ...     f = pylab.figure()
 ...     pylab.plot(times, potentialSciPy, times, potentialFiPy)
+...     pylab.savefig('potential.png')
 ...     pylab.show()
 
+
+The results are in close agreement.
+
+.. image:: potential.*
+   :width: 90%
+   :align: center
+   :alt: comparison of FiPy and SciPy for the potential equation
 
 
 

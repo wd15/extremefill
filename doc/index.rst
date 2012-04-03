@@ -12,11 +12,25 @@ Contents:
    :maxdepth: 2 
 
    README
-  
-.. automodule:: electrical
+
+Modules
+=======  
+
+PotentialEquation
+-----------------
+
+.. automodule:: electrical.potentialEquation
    :members:
-   
-   
+
+Examples
+========
+
+1D potential
+------------
+
+.. automodule:: electrical.potential
+   :members:
+
 Indices and tables
 ==================
 
