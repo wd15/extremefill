@@ -22,13 +22,25 @@ PotentialEquation
 .. automodule:: electrical.potentialEquation
    :members:
 
+1D_counter
+------------
+
+.. automodule:: electrical.1D_counter
+   :members:
+
 Examples
 ========
 
-1D potential
-------------
+potential
+---------
 
 .. automodule:: electrical.potential
+   :members:
+
+potentialCounter
+----------------
+
+.. automodule:: electrical.potentialCounter
    :members:
 
 Indices and tables
