@@ -17,13 +17,6 @@ Contents:
    :members:
    
    
---------
-Examples
---------
-
-.. automodule:: electrical.potential
-   :members:
-   
 Indices and tables
 ==================
 

@@ -45,7 +45,7 @@ from fipy.models.levelSet.distanceFunction.levelSetDiffusionEquation import _bui
 __all__ = ["PotentialEquation"]
 
 class _InterfaceAreas(CellVariable):
-    def __init__(self, distanceVar, capacitance):
+    def __init__(self, distanceVar):
         super(_InterfaceAreas, self).__init__(distanceVar.mesh, hasOld=0)
         self.distanceVar = self._requires(distanceVar)
 
@@ -86,9 +86,9 @@ def PotentialEquation(var=None,
     .. math::
        
        \int \left[ |\nabla \phi| \delta \left( \phi \right) \left(
-       \frac{\partial \psi }{\partial t} + i_F  \left( \psi
+       c_{DL} \frac{\partial \psi }{\partial t} + i_F  \left( \psi
        \right)\right)\right] dV = \int \nabla \cdot \left(\kappa_{\phi}
-       \nabla\right) \psi dV
+       \nabla \psi \right)dV
 
     where,
 
@@ -105,7 +105,7 @@ def PotentialEquation(var=None,
     .. math::
 
        \int \left[
-       \frac{A_{\phi=0}}{V}
+       \frac{A_{\phi=0} c_{DL}}{V}
        \frac{\partial \psi }{\partial t} =
        \nabla \cdot \left(\kappa_{\phi}
        \nabla\right)
@@ -124,18 +124,18 @@ def PotentialEquation(var=None,
 
     """
     A = _InterfaceAreas(distanceVar)
-    V = var.cellVolumes
+    V = var.mesh.cellVolumes
 
     eq = _buildLevelSetDiffusionEquation(ionVar=var,
                                          distanceVar=distanceVar,
-                                         transientCoeff=capacitance * A / V,
+                                         transientCoeff=capacitance * A / V + (distanceVar < 0.),
                                          diffusionCoeff=conductivity)
     
     return eq + currentDensity * A / V
 
 def _test(): 
-    import fipy.tests.doctestPlus
-    return fipy.tests.doctestPlus.testmod()
+    import doctest
+    return doctest.testmod()
     
 if __name__ == "__main__": 
     _test() 
