@@ -14,21 +14,27 @@ condition at :math:`\phi=0` (the working electrode) is given by,
 
 .. math::
 
-    c_{DL} \frac{\partial \psi}{\partial t} + i_{F} \left( \psi \right)  = 
+    c_{DL} \frac{\partial \psi}{\partial t} + i_{F} \left( \psi - \psi_0 \right)  = 
     -\kappa \vec{n} \cdot \nabla \psi
 
 where :math:`c_{DL}` is the capacitance, :math:`i_F` is the
 current density, :math:`\kappa` is the conductance and the normal
-points out of the electrolyte. The boundary condition at the counter electode is :math:`\psi=0`. The current is given by
+points out of the electrolyte. The quantity :math:`\psi_0` is the value
+of :math:`\psi` at the reference electrode. 
+
+
+The boundary condition at the counter electode is :math:`\psi=0`. The
+current is given by
 
 .. math::
 
-    i_F = i_0 \left[\exp{\left(-\frac{\alpha F \left(V_{\text{APPLIED}} - \psi\right) }{R T} \right)} -  \exp{\left(\frac{\left(2 -\alpha\right) F \left(V_{\text{APPLIED}} - \psi\right)}{R T} \right)}  \right]
+    i_F \left( \xi \right) = i_0 \left[\exp{\left(-\frac{\alpha F \left(V_{\text{APPLIED}} - \xi\right) }{R T} \right)} -  \exp{\left(\frac{\left(2 -\alpha\right) F \left(V_{\text{APPLIED}} - \xi \right)}{R T} \right)}  \right]
 
 The paramaters are as follows.
 
 >>> import numpy
->>> delta = 50e-6 ## m
+>>> delta = 100e-6 ## m
+>>> deltaRef = 50e-6 ## m
 >>> faradaysConstant = 9.6485e4 ## C / mol = J / V / mol
 >>> gasConstant = 8.314 ## J / K / mol
 >>> temperature = 298. ## K
@@ -43,31 +49,34 @@ In 1D, we can write an ODE for :math:`\psi` at the interface.
 
 .. math::
 
-    c_{DL} \frac{\partial \psi}{\partial t} + i_{F} \left( \psi \right)  = 
+    c_{DL} \frac{\partial \psi}{\partial t} + i_{F} \left( \psi - \psi_0 \right)  = 
     -\frac{\kappa \psi}{\delta}
 
 where :math:`\psi` is now only defined at the interface. Using scipy we can solve the ODE.
 
->>> def iF(psi):
-...     V = appliedVoltage - psi
+>>> def iF(xi):
+...     V = appliedVoltage - xi
 ...     return i0 * (numpy.exp(-alpha * Fbar * V) - numpy.exp((2 - alpha) * Fbar * V))
 
->>> def iFderivative(psi):
-...     V = appliedVoltage - psi
+>>> def iFderivative(xi):
+...     V = appliedVoltage - xi
 ...     return i0 * (alpha * Fbar * numpy.exp(-alpha * Fbar * V) \
 ...            + (2 - alpha) * Fbar * numpy.exp((2 - alpha) * Fbar * V))
 
 >>> def RHS(t, y):
 ...     psi = y[0]
-...     return numpy.array((-iF(psi) / capacitance  - kappa * psi / delta / capacitance,))
+...     psi0 = (1 - deltaRef / delta) * psi
+...     return numpy.array((-iF(psi - psi0) / capacitance  - kappa * psi / delta / capacitance,))
 
 >>> def jacobian(t, y):
 ...     psi = y[0]
-...     return numpy.array((-iFderivative(psi) / capacitance  - kappa / delta / capacitance,))
+...     psi0 = (1 - deltaRef / delta) * psi
+...     return numpy.array((-iFderivative(psi - psi0) / capacitance  - kappa / delta / capacitance,))
 
 >>> from scipy.integrate import ode
 >>> integrator = ode(RHS, jacobian).set_integrator('vode', method='bdf', with_jacobian=True)
->>> s = integrator.set_initial_value((appliedVoltage,), 0.)
+>>> initialValue = appliedVoltage + (delta - deltaRef) / deltaRef * appliedVoltage
+>>> s = integrator.set_initial_value((initialValue,), 0.)
 
 >>> totalSteps = 1000
 >>> dt = 1e-8
@@ -101,32 +110,38 @@ We solve this problem with FiPy using the ``PotentialEquation``.
 >>> distanceVar.calcDistanceFunction()
 
 >>> potentialVar = CellVariable(mesh=mesh, hasOld=True)
->>> potentialVar[:] = appliedVoltage
+>>> potentialVar[:] = initialValue
 >>> potentialVar.constrain(0, mesh.facesRight)
+
+>>> potentialRef = CellVariable(mesh=mesh, hasOld=True)
+
+>>> xi = potentialVar - potentialRef
 
 >>> potentialEqn = PotentialEquation(var=potentialVar,
 ...                                  distanceVar=distanceVar,
-...                                  currentDensity=iF(potentialVar),
+...                                  currentDensity=iF(xi),
 ...                                  conductivity=kappa,
 ...                                  capacitance=capacitance)
 
 >>> potentialFiPy = numpy.zeros(totalSteps)
+>>> potentialRefs = numpy.zeros(totalSteps)
 
 >>> t = 0.
 >>> for step in range(totalSteps):
 ...     potentialVar.updateOld()
 ...     for sweep in range(5):
+...         potentialRef[:] = potentialVar([[deltaRef]])
 ...         residual = potentialEqn.sweep(potentialVar, dt=dt)
 ...     potentialFiPy[step] = potentialVar.value[interfaceID]
+...     potentialRefs[step] = potentialVar([[deltaRef]])
 
->>> print numpy.allclose(potentialFiPy, potentialSciPy, atol=1e-4)
+>>> print numpy.allclose(potentialFiPy, potentialSciPy, atol=1e-3)
 True
 
 >>> if __name__ == '__main__':
 ...     import pylab
 ...     f = pylab.figure()
 ...     pylab.plot(times, potentialSciPy, times, potentialFiPy)
-...     pylab.savefig('potential.png')
 ...     pylab.show()
 
 
