@@ -25,11 +25,24 @@ PotentialEquation
 Examples
 ========
 
-potential
+Potential
 ---------
 
 .. automodule:: electrical.potential
    :members:
+
+Leveler
+-------
+
+.. automodule:: electrical.leveler
+   :members:
+
+1D Trench
+---------
+
+.. automodule:: electrical.1DWithTrench
+   :members:
+
 
 Indices and tables
 ==================

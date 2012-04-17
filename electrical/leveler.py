@@ -49,7 +49,7 @@ the ``numberOfSteps`` argument as follows,
 
 .. index:: runLeveler
 
->>> runLeveler(numberOfSteps=10, displayViewers=False, cellSize=0.25e-7) # doctest: +GMSH
+>>> runLeveler(numberOfSteps=10, displayViewers=True, cellSize=0.25e-7) # doctest: +GMSH
 1
 
 Change the ``displayViewers`` argument to ``True`` if you wish to see the
@@ -220,7 +220,7 @@ def runLeveler(kLeveler=0.018,
                levelerDiffusionCoefficient=5e-10, 
                numberOfSteps=400, 
                displayRate=10, 
-               displayViewers=False):
+               displayViewers=True):
 
     
     kLevelerConsumption = 0.0005
@@ -233,16 +233,16 @@ def runLeveler(kLeveler=0.018,
     charge = 2
     metalDiffusionCoefficient = 4e-10
     temperature = 298.
-    overpotential = -0.25
+    appliedVoltage = -0.25
     bulkMetalConcentration = 250.
     bulkAcceleratorConcentration = 50.0e-3
     initialLevelerCoverage = 0.
     cflNumber = 0.2
     numberOfCellsInNarrowBand = 20
-    cellsBelowTrench = 10
     trenchDepth = 0.4e-6
     trenchSpacing = 0.6e-6
-    boundaryLayerDepth = 98.7e-6
+    boundaryLayerDepth = 3e-6  ##98.7e-6
+    referenceHeight = boundaryLayerDepth / 2.
     i0Suppressor = 0.3
     i0Accelerator = 22.5
     alphaSuppressor = 0.5
@@ -255,25 +255,27 @@ def runLeveler(kLeveler=0.018,
     Bb = 60
     Vd = 0.098
     Bd = 0.0008
-
-    etaPrime = faradaysConstant * overpotential / gasConstant / temperature
+    kappa = 15.26
+    capacitance = 0.3
+    sweeps = 5
 
     mesh = TrenchMesh(cellSize = cellSize,
                       trenchSpacing = trenchSpacing,
                       trenchDepth = trenchDepth,
                       boundaryLayerDepth = boundaryLayerDepth,
-                      aspectRatio = aspectRatio,
-                      angle = numerix.pi * 4. / 180.,
-                      bowWidth = 0.,
-                      overBumpRadius = 0.,
-                      overBumpWidth = 0.)
+                      aspectRatio = aspectRatio)
+##                      angle = numerix.pi * 4. / 180.,
+##                      bowWidth = 0.,
+##                      overBumpRadius = 0.,
+##                      overBumpWidth = 0.)
 
     narrowBandWidth = numberOfCellsInNarrowBand * cellSize
     distanceVar = DistanceVariable(
         name = 'distance variable',
         mesh = mesh,
         value = -1.,
-        narrowBandWidth = narrowBandWidth)
+        narrowBandWidth = narrowBandWidth,
+        hasOld=True)
 
     distanceVar.setValue(1., where=mesh.electrolyteMask)
     
@@ -290,17 +292,33 @@ def runLeveler(kLeveler=0.018,
 
     bulkAcceleratorVar = CellVariable(name = 'bulk accelerator variable',
                                       mesh = mesh,
-                                      value = bulkAcceleratorConcentration)
+                                      value = bulkAcceleratorConcentration,
+                                      hasOld=True)
 
     bulkLevelerVar = CellVariable(
         name = 'bulk leveler variable',
         mesh = mesh,
-        value = bulkLevelerConcentration)
+        value = bulkLevelerConcentration,
+        hasOld=True)
 
     metalVar = CellVariable(
         name = 'metal variable',
         mesh = mesh,
-        value = bulkMetalConcentration)
+        value = bulkMetalConcentration,
+        hasOld=True)
+
+    initialPotential = appliedVoltage + (boundaryLayerDepth - referenceHeight) / referenceHeight * appliedVoltage
+
+    potentialVar = CellVariable(
+        name='potential',
+        mesh=mesh,
+        value=initialPotential,
+        hasOld=True)
+
+    referencePotential = Variable(initialPotential)
+    xi =  potentialVar - referencePotential
+
+    etaPrime = faradaysConstant * (appliedVoltage - xi) / gasConstant / temperature
 
     def depositionCoeff(alpha, i0):
         expo = numerix.exp(-alpha * etaPrime)
@@ -321,9 +339,10 @@ def runLeveler(kLeveler=0.018,
         value = depositionRateVariable)   
 
     kAccelerator = rateConstant * numerix.exp(-alphaAdsorption * etaPrime)
-    kAcceleratorConsumption =  Bd + A / (numerix.exp(Ba * (overpotential + Vd)) + numerix.exp(Bb * (overpotential + Vd)))
-    q = m * overpotential + b
+    kAcceleratorConsumption =  Bd + A / (numerix.exp(Ba * (appliedVoltage + Vd)) + numerix.exp(Bb * (appliedVoltage + Vd)))
+    q = m * appliedVoltage + b
 
+    kLeveler = 0.0
     levelerSurfactantEquation = AdsorbingSurfactantEquation(
         levelerVar,
         distanceVar = distanceVar,
@@ -335,6 +354,7 @@ def runLeveler(kLeveler=0.018,
     accVar2 = (accVar1 > 0) * accVar1
     accConsumptionCoeff = kAcceleratorConsumption * (accVar2**(q - 1))
 
+    kAccelerator = 0.0
     acceleratorSurfactantEquation = AdsorbingSurfactantEquation(
         acceleratorVar,
         distanceVar = distanceVar,
@@ -375,8 +395,19 @@ def runLeveler(kLeveler=0.018,
         rateConstant = kLeveler * siteDensity)
 
     bulkLevelerVar.constrain(bulkLevelerConcentration, mesh.facesTop)
+
+    from potentialEquation import PotentialEquation
+
+    potentialEquation = PotentialEquation(var=potentialVar,
+                                          distanceVar=distanceVar,
+                                          currentDensity=currentDensity,
+                                          conductivity=kappa,
+                                          capacitance=capacitance)
+
+    potentialVar.constrain(0, mesh.facesTop)
     
-    eqnTuple = ( (advectionEquation, distanceVar, (), None),
+    eqnTuple = ( (potentialEquation, potentialVar, (), None),
+                 (advectionEquation, distanceVar, (), None),
                  (levelerSurfactantEquation, levelerVar, (), None),
                  (acceleratorSurfactantEquation, acceleratorVar, (), None),
                  (metalEquation, metalVar,  (), None),
@@ -394,6 +425,10 @@ def runLeveler(kLeveler=0.018,
         
     for step in range(numberOfSteps):
 
+        for eqn, var, BCs, solver in eqnTuple:
+            if var.old is not var:
+                var.updateOld()
+
         if displayViewers:
             if step % displayRate == 0:
                 for viewer in viewers:
@@ -410,16 +445,19 @@ def runLeveler(kLeveler=0.018,
                                                0),
                                  0)
 
+        
         dt = cflNumber * cellSize / extOnInt.max()
-
-        id = numerix.nonzero(distanceVar._interfaceFlag)[0].max()
+        print 'dt',dt
         distanceVar.extendVariable(extensionVelocityVariable, deleteIslands = True)
 
         extensionVelocityVariable[mesh.fineMesh.numberOfCells:] = 0.
-
-        for eqn, var, BCs, solver in eqnTuple:
-            eqn.solve(var, boundaryConditions = BCs, dt = dt, solver=solver)
-
+        
+        for sweep in range(sweeps):
+            referencePotential.setValue(potentialVar(((0,), (referenceHeight,))))
+            for eqn, var, BCs, solver in eqnTuple:
+                print 'var.name',var.name
+                eqn.sweep(var, boundaryConditions = BCs, dt = dt, solver=solver)
+                
         totalTime += dt
 
     point = ((1.25e-08,), (3.125e-07,))
