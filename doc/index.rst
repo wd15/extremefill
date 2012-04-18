@@ -37,10 +37,10 @@ Leveler
 .. automodule:: electrical.leveler
    :members:
 
-1D Trench
----------
+1D Feature
+----------
 
-.. automodule:: electrical.1DWithTrench
+.. automodule:: electrical.feature1D
    :members:
 
 
