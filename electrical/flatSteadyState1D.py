@@ -13,7 +13,7 @@ is given by,
     \\
     \bar{c}_{\text{cu}} =& \frac{1}{1 + \bar{C} E \left(1 - \theta \right)}
     \\
-    \bar{\xi} =& -\bar{G} \left(1 - \theta \right) 
+    \bar{\psi} =& 1 -\bar{G} \left(1 - \theta \right) 
     E \bar{c}_{\text{cu}}
     
 where
@@ -26,16 +26,16 @@ where
     \text{,}\;\;
     \bar{C} = \frac{\delta i_0}{D_{\text{cu}} n F c_{\text{cu}}^{\infty}}
     \text{,}\;\;
-    \bar{G} = \frac{\delta_{\text{ref}} i_0}{\kappa \eta}
+    \bar{G} = \frac{\delta_{\text{ref}} i_0}{\kappa \eta_{\text{applied}}}
     \text{,}\;\;
-    \bar{F} = \frac{F \eta }{R T}
+    \bar{F} = \frac{F \eta_{\text{applied}}}{R T}
 
 and 
 
 .. math::
 
-    E\left(\bar{\xi}\right) = \left[\exp{\left(-\alpha \bar{F} \left(1 - \bar{\xi}\right) \right)} - 
-    \exp{\left(2 - \alpha\right) \bar{F} \left(1 - \bar{\xi}\right)}  \right]
+    E\left(\bar{\psi}\right) = \left[\exp{\left(\alpha \bar{F} \bar{\psi} \right)} - 
+    \exp{-\left(2 - \alpha\right) \bar{F} \psi}  \right]
 
 ..
 .. math::
@@ -44,7 +44,7 @@ and
     \text{,}\;\;
     \bar{c}_{\theta} = \frac{c_{\theta}}{c_{\theta}^{\infty}}
     \text{,}\;\;
-    \bar{\xi} = \frac{\xi}{\eta} 
+    \bar{\psi} = \frac{\psi}{\eta_{\text{applied}}} 
 
 The whole system is controlled by only six parameters including
 :math:`\alpha`. All over bars indicate dimensionless quantities whether
@@ -64,7 +64,7 @@ whole problem.
 
 For :math:`\theta=1`, the whole system shuts down
 :math:`\bar{c}_{\theta}=1`, :math:`\bar{c}_{\text{cu}}=1` and
-:math:`\bar{\psi}=0`. If :math:`B>1` this is not a stable solution
+:math:`\bar{\psi}=1`. If :math:`B>1` this is not a stable solution
 though so the system should migrate to some value of :math:`\theta<1`
 with any perturbation.
 
@@ -73,6 +73,7 @@ I've set up a function ``solve`` that returns the :math:`\theta`,
 :math:`\bar{\psi}` in that order.  As a very trivial test case, lets
 find the roots for the most trivial system
 
+>>> import numpy
 >>> B = 10.
 >>> F = 9.6485e4
 >>> R = 8.314
@@ -81,23 +82,27 @@ find the roots for the most trivial system
 >>> alpha = 0.4
 >>> Fbar = F * eta / R / T
 >>> Bbar = B / E(0, Fbar, alpha)
->>> print solve(Bbar=Bbar, Kbar=0, Cbar=0, Gbar=0, Fbar=Fbar, alpha=alpha)
-[ 0.1  1.   1.   0. ]
+>>> print numpy.allclose(solve(Bbar=Bbar, Kbar=0, Cbar=0, Gbar=0, Fbar=Fbar, alpha=alpha)[0], 0.1)
+True
 
 The above case is for just the suppressor surfactant
 concentration. Everything else is switched off. Let's try another
 case. Non-physical root is the attractor.
 
->>> print solve(Bbar=0.1 / E(0, Fbar, alpha), Kbar=0, Cbar=0, Gbar=0, Fbar=Fbar, alpha=alpha)
-[ 10.   1.   1.   0.]
+>>> Bbar=0.1 / E(0, Fbar, alpha)
+>>> print numpy.allclose(solve(Bbar=Bbar, Kbar=0, Cbar=0, Gbar=0, Fbar=Fbar, alpha=alpha)[0], 1.)
+True
 
 Let's include the effects of the potential and vary the position of
 the reference electrode (:math:`G`).
 
->>> import numpy
 >>> Garray = -10**numpy.linspace(-3, 3, 1000)
+>>> Bbar = B / E(0, Fbar, alpha)
 >>> thetas = [solve(Bbar=Bbar, Kbar=0, Cbar=0, Gbar=Gbar, Fbar=Fbar, alpha=alpha)[0] for Gbar in Garray]
-
+>>> print numpy.allclose(thetas[0], 0.124430658264)
+True
+>>> print numpy.allclose(thetas[-1], 0.999925883313)
+True
 >>> import pylab
 >>> pylab.figure()
 >>> pylab.semilogx(abs(Garray), thetas)
@@ -129,7 +134,8 @@ Let's try a more physical system and vary the potential.
 The physical solution for a flat interface is close to 1.
 
 >>> print solve(Bbar=Bbar, Kbar=0, Cbar=0, Gbar=Gbar, Fbar=Fbar, alpha=alpha)
-[ 0.95669784  1.          1.          0.89737542]
+>>> print numpy.allclose(solve(Bbar=Bbar, Kbar=0, Cbar=0, Gbar=Gbar, Fbar=Fbar, alpha=alpha), (0.956697839867, 1., 1., 0.897375416815))
+True
 
 If we allow some suppressor diffusion.
 
@@ -138,18 +144,19 @@ If we allow some suppressor diffusion.
 >>> Ds = 9.2e-11  
 >>> Kbar = gamma * kPlus * delta / Ds
 
->>> print solve(Bbar=Bbar, Kbar=Kbar, Cbar=0, Gbar=Gbar, Fbar=Fbar, alpha=alpha)
-[ 0.37914907  0.0306438   1.          0.99485398]
+>>> print numpy.allclose(solve(Bbar=Bbar, Kbar=Kbar, Cbar=0, Gbar=Gbar, Fbar=Fbar, alpha=alpha), [0.379149073338, 0.0306438, 1., 0.99485398])
+True
 
-and some cupric diffusion
+Some cupric diffusion.
 
 >>> Dc = 2.65e-10
 >>> cinf = 1000.
-
->>> Cbar = delta * i0 / Dc / n / F / cinf / 100
+>>> Cbar = delta * i0 / Dc / n / F / cinf / 100.
 
 >>> print solve(Bbar=Bbar, Kbar=Kbar, Cbar=Cbar, Gbar=Gbar, Fbar=Fbar, alpha=alpha)
-[ 0.37914907  0.0306438   1.          0.99485398]
+>>> print numpy.allclose(solve(Bbar=Bbar, Kbar=Kbar, Cbar=Cbar, Gbar=Gbar, Fbar=Fbar, alpha=alpha), (0.37915721389182006, 0.030644188971218411, 0.99591801496489529, 0.9948322311677279))
+True
+
 ##.. image:: etavtheta.*
 ##   :width: 90%
 ##   :align: center
@@ -160,24 +167,34 @@ and some cupric diffusion
 __docformat__ = 'restructuredtext'
 
 
-def E(xi, Fbar, alpha):
+def E(potential, Fbar, alpha):
      import numpy
-     return numpy.exp(-alpha * Fbar * (1 - xi)) - numpy.exp((2 - alpha) * Fbar * (1 - xi))
+     return numpy.exp(-alpha * Fbar * (1 - potential)) - numpy.exp((2 - alpha) * Fbar * (1 - potential))
 
 def func(x, Bbar, Kbar, Cbar, Gbar, Fbar, alpha):
-    theta, suppressor, cupric, potential = x
+    suppressor, cupric, potential = x
     EE = E(potential, Fbar, alpha)
-    return (theta - suppressor / Bbar / EE / cupric,
-            suppressor - 1 / (1 + Kbar * (1 - theta)),
+    theta = thetaFunc(suppressor, Bbar, potential, Fbar, alpha, cupric)
+    return (suppressor - 1 / (1 + Kbar * (1 - theta)),
             cupric - 1 / (1 + Cbar * EE * (1 - theta)),
             potential + Gbar * (1 - theta) * EE * cupric)
-    
-def solve(theta=0, suppressor=1, cupric=1, potential=0,
+
+def thetaFunc(suppressor, Bbar, potential, Fbar, alpha, cupric):
+    EE = E(potential, Fbar, alpha)
+    theta = suppressor / Bbar / EE / cupric
+    if theta > 1:
+        theta = 1
+    elif theta < 0:
+        theta = 0
+    return theta
+
+def solve(suppressor=1, cupric=1, potential=0,
           Bbar=None, Kbar=None, Cbar=None, Gbar=None, Fbar=None, alpha=None):
     from scipy.optimize import fsolve
-    return fsolve(func,
-                  (theta, suppressor, cupric, potential),
-                  (Bbar, Kbar, Cbar, Gbar, Fbar, alpha))
+    suppressor, cupric, potential = fsolve(func,
+                                           (suppressor, cupric, potential),
+                                           (Bbar, Kbar, Cbar, Gbar, Fbar, alpha))
+    return thetaFunc(suppressor, Bbar, potential, Fbar, alpha, cupric), suppressor, cupric, potential
 
 
 if __name__ == '__main__':
