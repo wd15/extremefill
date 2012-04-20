@@ -156,7 +156,6 @@ correct in the absence of any suppressor.
 >>> print numpy.allclose(1 / (1 + iF0() * delta / D / charge / F / cinf), cupric[0] / cinf, rtol=1e-3)
 True
 
-Another test is to look for the steady state coverage on the surface
 """
 __docformat__ = 'restructuredtext'
 

@@ -43,6 +43,14 @@ Leveler
 .. automodule:: electrical.feature1D
    :members:
 
+Flat Steady-State 1D
+--------------------
+
+.. automodule:: electrical.flatSteadyState1D
+   :members:
+
+
+
 
 Indices and tables
 ==================
