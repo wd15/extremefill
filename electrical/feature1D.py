@@ -58,15 +58,15 @@ given by,
 
 .. math::
 
-    i_F \left( \xi, \theta \right) = \left(i_0 + i_{\theta} \theta\right) \left[\exp{\left(-\frac{\alpha F \left(\eta - \xi\right) }{R T} \right)} -  \exp{\left(\frac{\left(2 -\alpha\right) F \left(\eta - \xi \right)}{R T} \right)}  \right]
+    i_F = \frac{c_{\text{cu}}}{c_{\text{cu}}^{\infty}} \left(i_0 + i_{\theta} \theta\right) \left[\exp{\left(\frac{\alpha F \psi}{R T} \right)} -  \exp{\left(-\frac{\left(2 -\alpha\right) F \psi}{R T} \right)}  \right]
 
-where :math:`\xi = \psi - \psi_{\text{ref}}`. The boundary conditions on the working electrode are
+The boundary conditions on the working electrode are
 included in the volume integrals. Additionally,
 
 .. math::
  
-     \psi = 0 \;\; & \text{at $z = \delta$} \\
-     \psi = \frac{\delta}{\delta_{\text{ref}}} \eta \;\; & \text{at $t = 0$ forcing $\xi=\eta$ initially} \\
+     \psi = -\eta_{\text{applied}} \;\; & \text{at $z = \delta_{\text{ref}}$} \\
+     \psi = -\eta_{\text{applied}} \;\; & \text{at $t = 0$} \\
      c_{\text{cu}} = c_{\text{cu}}^{\infty} \;\; & \text{at $z = \delta$} \\
      c_{\text{cu}} = c_{\text{cu}}^{\infty} \;\; & \text{at $t = 0$} \\
      c_{\theta} = c_{\theta}^{\infty} \;\; & \text{at $z = \delta$} \\
@@ -183,17 +183,17 @@ def feature(delta=150e-6,
             bulkCupric=1000.,
             bulkSuppressor=.02,
             diffusionSuppressor=1e-9,
-            kappa=15.26):
+            kappa=15.26,
+            kPlus=125.,
+            kMinus=2.45e7,
+            omega=7.1e-6,
+            gamma=2.5e-7):
 
     Fbar = faradaysConstant / gasConstant / temperature ## 1 / V
     capicatance = 0.3 ## F / m**2 = A s / V / m**2  
-    kPlus = 125. ## m**3 / mol / s
-    kMinus = 2.45e7 ## 1 / m
     areaRatio = 0.093
     perimeterRatio = 1. / 2.8e-6  
-    gamma = 2.5e-7
     epsilon = 1e-30
-    omega = 7.1e-6
 
     L = delta + featureDepth
     N = 400
@@ -201,9 +201,7 @@ def feature(delta=150e-6,
     mesh = Grid1D(nx=N, dx=dx) - [[featureDepth]]
 
     potential = CellVariable(mesh=mesh, hasOld=True, name=r'$\psi$')
-    potential[:] = 0 ##delta * eta / deltaRef 
-    potential.constrain(0, mesh.facesRight)
-    potentialRef = Variable()
+    potential[:] = -appliedPotential
 
     cupric = CellVariable(mesh=mesh, hasOld=True, name=r'$c_{cu}$')
     cupric[:] = bulkCupric
@@ -215,9 +213,13 @@ def feature(delta=150e-6,
 
     theta = CellVariable(mesh=mesh, hasOld=True, name=r'$\theta$')
 
-    V = appliedPotential - potential + potentialRef
-    baseCurrent = (i0 + i1 * theta) * (numerix.exp(-alpha * Fbar * V) - numerix.exp((2 - alpha) * Fbar * V))
-    current = cupric / bulkCupric * baseCurrent
+    I0 = (i0 + i1 * theta)
+    baseCurrent = I0 * (numerix.exp(alpha * Fbar * potential) \
+                            - numerix.exp(-(2 - alpha) * Fbar * potential))
+    cbar =  cupric / bulkCupric
+    current = cbar * baseCurrent
+    currentDerivative = cbar * I0 * (alpha * Fbar *  numerix.exp(alpha * Fbar * potential) \
+                                         + (2 - alpha) * Fbar * numerix.exp(-(2 - alpha) * Fbar * potential))
 
     def dirac(x):
         value = numerix.zeros(mesh.numberOfCells, 'd')
@@ -229,9 +231,13 @@ def feature(delta=150e-6,
 
     THETA = (mesh.x < 0) * perimeterRatio + dirac(0) * (1 - areaRatio) + dirac(-featureDepth) * areaRatio 
     AREA = (mesh.x < 0) * (areaRatio - 1) + 1 
+    THETA_UPPER = CellVariable(mesh=mesh)
+    THETA_UPPER[-1] = kappa / dx / (deltaRef - delta)
 
-    potentialEq = TransientTerm(capicatance * THETA) == DiffusionTerm(kappa * AREA) - \
-        current * THETA
+    potentialEq = TransientTerm(capicatance * THETA) == DiffusionTerm(kappa * AREA) \
+        - THETA * (current - potential * currentDerivative) \
+        - ImplicitSourceTerm(THETA * currentDerivative) \
+        - THETA_UPPER * appliedPotential - ImplicitSourceTerm(THETA_UPPER) 
 
     cupricEq = TransientTerm(AREA) == DiffusionTerm(diffusionCupric * AREA) \
         - ImplicitSourceTerm(baseCurrent * THETA / (bulkCupric * charge * faradaysConstant))
@@ -245,13 +251,11 @@ def feature(delta=150e-6,
     t = 0.
     
     if view:
-        V.name = r'$\phi$'
-        viewers = (Viewer(V, datamax=0, datamin=-0.3), Viewer(cupric), Viewer(suppressor), Viewer(theta))
+        viewers = (Viewer(potential, datamax=0, datamin=0.3), Viewer(cupric), Viewer(suppressor), Viewer(theta))
 
     potentials = []
     times = []
 
-    potentialStar = potential.copy()
     for step in range(totalSteps):
         potential.updateOld()
         cupric.updateOld()
@@ -259,29 +263,29 @@ def feature(delta=150e-6,
         theta.updateOld()
 
         for sweep in range(5):
-            potentialRef.setValue(potential([[0]]) * (1 - deltaRef / delta))
-            potentialStar[:] = potential
             potentialRes = potentialEq.sweep(potential, dt=dt)
-            potential[:] = relaxation * (potential.value - potentialStar.value) + potentialStar.value
             cupricRes = cupricEq.sweep(cupric, dt=dt)
             suppressorRes = suppressorEq.sweep(suppressor, dt=dt)
             thetaRes = thetaEq.sweep(theta, dt=dt)
             
-##            if PRINT:
-##                print potentialRes, cupricRes, suppressorRes, thetaRes
+            if PRINT:
+                print potentialRes, cupricRes, suppressorRes, thetaRes
         
         if view:
             for viewer in viewers:
                 viewer.plot()
-                  
-##        print 'potential([[0]]) - potentialRef',potential([[0]]) - potentialRef
+
         if PRINT:
-            print 'cupric([[0]]) / bulkCupric',cupric([[0]]) / bulkCupric
+            print 'theta',theta[0]
+            print 'cBar_supp',suppressor[0] / bulkSuppressor
+            print 'cBar_cu',cupric[0] / bulkCupric
+            print 'potentialBar',-potential[0] / appliedPotential
             print 'dt',dt
             print 'step',step
+
         t += dt
         times += [t]
-        potentials += [V([[0]])]
+        potentials += [-potential([[0]])]
         dt = dt * 1.1
         dt = min((dt, dtMax))
         dt = max((dt, dtMin))
