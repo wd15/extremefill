@@ -192,11 +192,11 @@ def feature(delta=150e-6,
     Fbar = faradaysConstant / gasConstant / temperature ## 1 / V
     capicatance = 0.3 ## F / m**2 = A s / V / m**2  
     areaRatio = 0.093
-    perimeterRatio = 1. / 2.8e-6  
+    perimeterRatio = 1. / 2.8e-6 * 0.093
     epsilon = 1e-30
 
     L = delta + featureDepth
-    N = 400
+    N = 1000
     dx = L / N 
     mesh = Grid1D(nx=N, dx=dx) - [[featureDepth]]
 
@@ -251,7 +251,14 @@ def feature(delta=150e-6,
     t = 0.
     
     if view:
-        viewers = (Viewer(potential, datamax=0, datamin=0.3), Viewer(cupric), Viewer(suppressor), Viewer(theta))
+        potentialBar = -potential / appliedPotential
+        potentialBar.name = r'$\bar{\eta}$'
+        cupricBar = cupric / bulkCupric
+        cupricBar.name = r'$\bar{c_{cu}}$'
+        suppressorBar = suppressor / bulkSuppressor
+        suppressorBar.name = r'$\bar{c_{\theta}}$'
+
+        viewer = Viewer((theta, suppressorBar, cupricBar, potentialBar), datamax=1, datamin=0.0)
 
     potentials = []
     times = []
@@ -272,8 +279,7 @@ def feature(delta=150e-6,
                 print potentialRes, cupricRes, suppressorRes, thetaRes
         
         if view:
-            for viewer in viewers:
-                viewer.plot()
+            viewer.plot()
 
         if PRINT:
             print 'theta',theta[0]
@@ -292,8 +298,7 @@ def feature(delta=150e-6,
 ##        print 'time',t
 
     if view:
-        for viewer in viewers:
-            viewer.plot()
+        viewer.plot()
         
     return numerix.array(times), numerix.array(potentials)[:,0], cupric.value
 

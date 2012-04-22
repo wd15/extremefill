@@ -151,7 +151,7 @@ Some cupric diffusion.
 
 >>> Dc = 2.65e-10
 >>> cinf = 1000.
->>> Cbar = delta * i0 / Dc / n / F / cinf / 100.
+>>> Cbar = delta * i0 / Dc / n / F / cinf
 
 >>> print solve(Bbar=Bbar, Kbar=Kbar, Cbar=Cbar, Gbar=Gbar, Fbar=Fbar, alpha=alpha)
 >>> print numpy.allclose(solve(Bbar=Bbar, Kbar=Kbar, Cbar=Cbar, Gbar=Gbar, Fbar=Fbar, alpha=alpha), (0.37915721389182006, 0.030644188971218411, 0.99591801496489529, 0.9948322311677279))

@@ -7,9 +7,9 @@ F = 9.6485e4
 omega = 7.1e-6
 i0 = A * n * F / omega
 kMinus = 2.45e7
-kPlus = 125.
+kPlus = 5. * 5
 bulkSuppressor = 0.02
-eta = -0.275
+eta = -0.25
 R = 8.314
 T = 298.
 deltaRef = 0.03
@@ -27,22 +27,11 @@ Gbar = deltaRef * i0 / kappa / eta
 Kbar = gamma * kPlus * delta / diffusionSuppressor
 Cbar = delta * i0 / diffusionCupric / n / F / bulkCupric
 
-##print solve(Bbar=Bbar, Kbar=0, Cbar=0, Gbar=0, Fbar=Fbar, alpha=alpha)
-##print solve(Bbar=Bbar, Kbar=0, Cbar=0, Gbar=Gbar, Fbar=Fbar, alpha=alpha)
-##print solve(Bbar=Bbar, Kbar=Kbar, Cbar=0, Gbar=Gbar, Fbar=Fbar, alpha=alpha)
-x = solve(Bbar=Bbar, Kbar=Kbar, Cbar=Cbar, Gbar=Gbar, Fbar=Fbar, alpha=alpha)
-print func(x[1:], Bbar, Kbar, Cbar, Gbar, Fbar, alpha)
-print x
-print func((0.220681744779, 0.593413596545, 1 - 0.00786830954277), Bbar, Kbar, Cbar, Gbar, Fbar, alpha)
-print thetaFunc(0.220681744779,  Bbar,  1 - 0.00786830954277, Fbar, alpha, 0.593413596545)
-
-raw_input('stopped')
-
-times, potentials = feature(featureDepth=0.,
+times, potentials = feature(featureDepth=56e-6,
                             view=True,
                             dt=1e-8,
-                            dtMax=10.,
-                            totalSteps=10000000,
+                            dtMax=1e+20,
+                            totalSteps=1000,
                             PRINT=True,
                             relaxation=1.0,
                             bulkSuppressor=bulkSuppressor,
