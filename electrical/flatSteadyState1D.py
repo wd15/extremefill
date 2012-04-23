@@ -81,7 +81,7 @@ find the roots for the most trivial system
 >>> eta = -0.275
 >>> alpha = 0.4
 >>> Fbar = F * eta / R / T
->>> Bbar = B / E(0, Fbar, alpha)
+>>> Bbar = B / E(-1, Fbar, alpha)
 >>> print numpy.allclose(solve(Bbar=Bbar, Kbar=0, Cbar=0, Gbar=0, Fbar=Fbar, alpha=alpha)[0], 0.1)
 True
 
@@ -169,7 +169,7 @@ __docformat__ = 'restructuredtext'
 
 def E(potential, Fbar, alpha):
      import numpy
-     return numpy.exp(-alpha * Fbar * (1 - potential)) - numpy.exp((2 - alpha) * Fbar * (1 - potential))
+     return numpy.exp(alpha * Fbar * (1 - potential)) - numpy.exp(-(2 - alpha) * Fbar * potential)
 
 def func(x, Bbar, Kbar, Cbar, Gbar, Fbar, alpha):
     suppressor, cupric, potential = x
@@ -177,7 +177,7 @@ def func(x, Bbar, Kbar, Cbar, Gbar, Fbar, alpha):
     theta = thetaFunc(suppressor, Bbar, potential, Fbar, alpha, cupric)
     return (suppressor - 1 / (1 + Kbar * (1 - theta)),
             cupric - 1 / (1 + Cbar * EE * (1 - theta)),
-            potential + Gbar * (1 - theta) * EE * cupric)
+            potential -1 + Gbar * (1 - theta) * EE * cupric)
 
 def thetaFunc(suppressor, Bbar, potential, Fbar, alpha, cupric):
     EE = E(potential, Fbar, alpha)
@@ -188,7 +188,7 @@ def thetaFunc(suppressor, Bbar, potential, Fbar, alpha, cupric):
         theta = 0
     return theta
 
-def solve(suppressor=1, cupric=1, potential=0,
+def solve(suppressor=1, cupric=1, potential=-1,
           Bbar=None, Kbar=None, Cbar=None, Gbar=None, Fbar=None, alpha=None):
     from scipy.optimize import fsolve
     suppressor, cupric, potential = fsolve(func,

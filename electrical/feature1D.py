@@ -159,22 +159,22 @@ True
 """
 __docformat__ = 'restructuredtext'
 
-from fipy import Grid1D, CellVariable, Variable, numerix, TransientTerm, DiffusionTerm, ImplicitSourceTerm, Viewer
+from fipy import Grid1D, CellVariable, Variable, numerix, TransientTerm, DiffusionTerm, ImplicitSourceTerm, Viewer, dump
 
 def feature(delta=150e-6,
             deltaRef=0.03,
             featureDepth=56e-6,
             i1=-40.,
             i0=40.,
-            diffusionCupric=5.6e-10,
+            diffusionCupric=2.65e-10,
             dt=.5e-7,
-            dtMax=.5e-7,
+            dtMax=1e+20,
             dtMin=.5e-7,
-            totalSteps=200,
-            appliedPotential=-0.275,
+            totalSteps=400,
+            appliedPotential=-0.25,
             view=False,
             PRINT=False,
-            relaxation=0.2,
+            relaxation=1.0,
             faradaysConstant=9.6485e4,
             gasConstant=8.314,
             temperature=298.,
@@ -182,12 +182,13 @@ def feature(delta=150e-6,
             charge=2,
             bulkCupric=1000.,
             bulkSuppressor=.02,
-            diffusionSuppressor=1e-9,
+            diffusionSuppressor=9.2e-11,
             kappa=15.26,
-            kPlus=125.,
+            kPlus=150.,
             kMinus=2.45e7,
             omega=7.1e-6,
-            gamma=2.5e-7):
+            gamma=2.5e-7,
+            filename=None):
 
     Fbar = faradaysConstant / gasConstant / temperature ## 1 / V
     capicatance = 0.3 ## F / m**2 = A s / V / m**2  
@@ -260,10 +261,11 @@ def feature(delta=150e-6,
 
         viewer = Viewer((theta, suppressorBar, cupricBar, potentialBar), datamax=1, datamin=0.0)
 
-    potentials = []
-    times = []
-
     for step in range(totalSteps):
+        if view:
+            viewer.axes.set_title(r'$t=%1.2e$' % t)
+            viewer.plot(filename='tmp/sim' + str(step).rjust(4, '0') + '.png')
+
         potential.updateOld()
         cupric.updateOld()
         suppressor.updateOld()
@@ -278,9 +280,6 @@ def feature(delta=150e-6,
             if PRINT:
                 print potentialRes, cupricRes, suppressorRes, thetaRes
         
-        if view:
-            viewer.plot()
-
         if PRINT:
             print 'theta',theta[0]
             print 'cBar_supp',suppressor[0] / bulkSuppressor
@@ -290,17 +289,26 @@ def feature(delta=150e-6,
             print 'step',step
 
         t += dt
-        times += [t]
-        potentials += [-potential([[0]])]
+
         dt = dt * 1.1
         dt = min((dt, dtMax))
         dt = max((dt, dtMin))
-##        print 'time',t
 
     if view:
-        viewer.plot()
+        viewer.plot('k25.png')
         
-    return numerix.array(times), numerix.array(potentials)[:,0], cupric.value
+    if filename:
+        import numpy
+        dump.write({'kPlus' : kPlus,
+                    'kMinus' : kMinus,
+                    'deltaRef' : deltaRef,
+                    'bulkSuppressor' : bulkSuppressor,
+                    'appliedPotential' : appliedPotential,
+                    'featureDepth' : featureDepth,
+                    'potential' : numpy.array(potential),
+                    'cupric' : numpy.array(cupric),
+                    'suppressor' : numpy.array(suppressor),
+                    'theta' : numpy.array(theta)}, filename)
 
 def noFeatureODE():
     import numpy
