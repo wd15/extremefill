@@ -160,41 +160,41 @@ True
 __docformat__ = 'restructuredtext'
 
 from fipy import Grid1D, CellVariable, Variable, numerix, TransientTerm, DiffusionTerm, ImplicitSourceTerm, Viewer, dump
+import parameters
 
-def feature(delta=150e-6,
-            deltaRef=0.03,
-            featureDepth=56e-6,
-            i1=-40.,
-            i0=40.,
-            diffusionCupric=2.65e-10,
+def feature(delta=parameters.delta,
+            deltaRef=parameters.deltaRef,
+            featureDepth=parameters.featureDepth,
+            i1=parameters.i1,
+            i0=parameters.i0,
+            diffusionCupric=parameters.diffusionCupric,
             dt=.5e-7,
             dtMax=1e+20,
             dtMin=.5e-7,
             totalSteps=400,
-            appliedPotential=-0.25,
+            appliedPotential=parameters.appliedPotential,
             view=False,
             PRINT=False,
-            relaxation=1.0,
-            faradaysConstant=9.6485e4,
-            gasConstant=8.314,
-            temperature=298.,
-            alpha=0.4,
-            charge=2,
-            bulkCupric=1000.,
-            bulkSuppressor=.02,
-            diffusionSuppressor=9.2e-11,
-            kappa=15.26,
-            kPlus=150.,
-            kMinus=2.45e7,
-            omega=7.1e-6,
-            gamma=2.5e-7,
+            faradaysConstant=parameters.faradaysConstant,
+            gasConstant=parameters.gasConstant,
+            temperature=parameters.temperature,
+            alpha=parameters.alpha,
+            charge=parameters.charge,
+            bulkCupric=parameters.bulkCupric,
+            bulkSuppressor=parameters.bulkSuppressor,
+            diffusionSuppressor=parameters.diffusionSuppressor,
+            kappa=parameters.kappa,
+            kPlus=parameters.kPlus,
+            kMinus=parameters.kMinus,
+            omega=parameters.omega,
+            gamma=parameters.gamma,
             filename=None):
-
-    Fbar = faradaysConstant / gasConstant / temperature ## 1 / V
-    capicatance = 0.3 ## F / m**2 = A s / V / m**2  
-    areaRatio = 0.093
-    perimeterRatio = 1. / 2.8e-6 * 0.093
-    epsilon = 1e-30
+ 
+    Fbar = parameters.Fbar
+    capicatance = parameters.capicatance ## F / m**2 = A s / V / m**2  
+    areaRatio = parameters.areaRatio
+    perimeterRatio = parameters.perimeterRatio
+    epsilon = 1e-30 
 
     L = delta + featureDepth
     N = 1000
@@ -254,12 +254,11 @@ def feature(delta=150e-6,
     if view:
         potentialBar = -potential / appliedPotential
         potentialBar.name = r'$\bar{\eta}$'
-        cupricBar = cupric / bulkCupric
-        cupricBar.name = r'$\bar{c_{cu}}$'
+        cbar.name = r'$\bar{c_{cu}}$'
         suppressorBar = suppressor / bulkSuppressor
         suppressorBar.name = r'$\bar{c_{\theta}}$'
 
-        viewer = Viewer((theta, suppressorBar, cupricBar, potentialBar), datamax=1, datamin=0.0)
+        viewer = Viewer((theta, suppressorBar, cbar, potentialBar), datamax=1, datamin=0.0)
 
     for step in range(totalSteps):
         if view:
