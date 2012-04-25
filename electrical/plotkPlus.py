@@ -25,8 +25,10 @@ def E(potential):
         - numpy.exp((2 - parameters.alpha) * parameters.Fbar * potential)
 
 V = parameters.omega * parameters.i0 * E(parameters.appliedPotential) / parameters.charge / parameters.faradaysConstant
-fig1 = pylab.figure()
-fig2 = pylab.figure()
+
+def plotDeposition():
+
+    fig1 = pylab.figure()
 
 trenchWidth = 2 * parameters.areaRatio / parameters.perimeterRatio
 foms = []
@@ -62,8 +64,10 @@ pylab.savefig('kPlusDepositionRate.png')
 pylab.figure(fig2.number)
 pylab.xlabel(r'$z / h$', fontsize=16)
 pylab.ylabel(r'$1 - \frac{2 \left(h + z\right) v}{w v_0}$', rotation='vertical', fontsize=16)
-pylab.legend(loc='lower left')
+pylab.legend(loc='lower right')
 pylab.xlim(xmax=0)
+pylab.ylim(ymax=1)
+pylab.ylim(ymin=-1)
 pylab.savefig('kPlusFigureOfMerit.png')
 
 pylab.figure()

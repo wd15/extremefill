@@ -30,10 +30,10 @@ fig2 = pylab.figure()
 
 trenchWidth = 2 * parameters.areaRatio / parameters.perimeterRatio
 foms = []
-kMinuses = (0.1e7, 0.5e7, 1e7, 1.5e7, 2e7, 2.5e7, 3e7)
+deltaRefs = (0.001, 0.01, 0.02, 0.03, 0.04)
 
-for kMinus in kMinuses:
-    filename='tmp/base-kMinus-' + str(kMinus) + '.gz'
+for deltaRef in deltaRefs:
+    filename='tmp/base-deltaRef-' + str(deltaRef) + '.gz'
     data = dump.read(filename)
     theta = data['theta'][:ID + 1]
     cupric = data['cupric'][:ID + 1]
@@ -48,17 +48,17 @@ for kMinus in kMinuses:
     foms += [min(figureOfMerit)]
 
     pylab.figure(fig1.number)
-    pylab.plot(X / parameters.featureDepth, depositionRate / V, label=r'$k^-=%1.1e$' % kMinus)
+    pylab.plot(X / parameters.featureDepth, depositionRate / V, label=r'$\delta_{ref}=%1.1e$' % deltaRef)
 
     pylab.figure(fig2.number)
-    pylab.plot(X / parameters.featureDepth, figureOfMerit, label=r'$k^-=%1.1e$' % kMinus)
+    pylab.plot(X / parameters.featureDepth, figureOfMerit, label=r'$\delta_{ref}=%1.1e$' % deltaRef)
 
 pylab.figure(fig1.number)
 pylab.xlabel(r'$z / h$', fontsize=16)
 pylab.ylabel(r'$v / v_0$', rotation='horizontal', fontsize=16)
 pylab.legend()
 pylab.xlim(xmax=0)
-pylab.savefig('kMinusDepositionRate.png')
+pylab.savefig('deltaRefDepositionRate.png')
 
 pylab.figure(fig2.number)
 pylab.xlabel(r'$z / h$', fontsize=16)
@@ -66,11 +66,11 @@ pylab.ylabel(r'$1 - \frac{2 \left(h + z\right) v}{w v_0}$', rotation='vertical',
 pylab.legend(loc='lower right')
 pylab.xlim(xmax=0)
 pylab.ylim(ymin=-1, ymax=1)
-pylab.savefig('kMinusFigureOfMerit.png')
+pylab.savefig('deltaRefFigureOfMerit.png')
 
 pylab.figure()
-pylab.semilogx(kMinuses, foms)
-pylab.xlabel(r'$k^-$ (m$^3$ / mol s)', fontsize=16)
+pylab.semilogx(deltaRefs, foms)
+pylab.xlabel(r'$\delta_{ref}$ (m$^3$ / mol s)', fontsize=16)
 pylab.ylabel(r'$\min\left(1 - \frac{2 \left(h + z\right) v}{w v_0}\right)$', rotation='vertical', fontsize=16)
 pylab.ylim(ymin=-1, ymax=1)
-pylab.savefig('kMinusVFigureOfMerit.png')
+pylab.savefig('deltaRefVFigureOfMerit.png')
