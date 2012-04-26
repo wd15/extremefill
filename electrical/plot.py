@@ -3,12 +3,18 @@ from fipy import dump, Grid1D
 import parameters
 import numpy
 import matplotlib
+from matplotlib import rc
+
+rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+## for Palatino and other serif fonts use:
+#rc('font',**{'family':'serif','serif':['Palatino']))
+rc('text', usetex=True)
 
 matplotlib.rcParams['lines.linewidth'] = 2
-font = {'family' : 'normal',
-        'weight' : 'normal',
-        'size'   : 12}
-matplotlib.rc('font', **font)
+#font = {'family' : 'normal',
+#        'weight' : 'normal',
+#        'size'   : 12}
+#matplotlib.rc('font', **font)
 matplotlib.rcParams['legend.fontsize'] = 11
 def getX(featureDepth):
     L = parameters.delta + featureDepth
@@ -39,6 +45,9 @@ def plotDeposition(variables, fileprefix, label, figprefix, mulFactor=1):
     print '**************'
     print 'varying ' + figprefix
 
+    xlabel = r'$z$ ($\mu$m)'
+    scaleFactor = 1000000
+
     for variable in variables:
         filename = fileprefix + str(variable) + '.gz'
         data = dump.read(filename)
@@ -56,55 +65,55 @@ def plotDeposition(variables, fileprefix, label, figprefix, mulFactor=1):
         depositionRate = parameters.omega * current / parameters.charge / parameters.faradaysConstant   
 
         pylab.figure(figDeposition.number)
-        pylab.plot(X * 1000, depositionRate, label=label % (variable * mulFactor))
+        pylab.plot(X * scaleFactor, depositionRate, label=label % (variable * mulFactor))
 
         pylab.figure(figTheta.number)
-        pylab.plot(X * 1000, theta, label=label % (variable * mulFactor))
+        pylab.plot(X * scaleFactor, theta, label=label % (variable * mulFactor))
 
         pylab.figure(figSuppressor.number)
-        pylab.plot(X * 1000, suppressor, label=label % (variable * mulFactor))
+        pylab.plot(X * scaleFactor, suppressor, label=label % (variable * mulFactor))
 
         pylab.figure(figCupric.number)
-        pylab.plot(X * 1000, cupric, label=label % (variable * mulFactor))
+        pylab.plot(X * scaleFactor, cupric, label=label % (variable * mulFactor))
         
         print '------------'
         print figprefix + ' value: ' + str(data[figprefix])
         print 'voltage drop',-data['appliedPotential'] - potential[ID]
 
     pylab.figure(figDeposition.number)
-    pylab.xlabel(r'z (mm)', fontsize=16)
-    pylab.ylabel(r'v (m / s)', rotation='vertical', fontsize=16)
+    pylab.xlabel(xlabel, fontsize=16)
+    pylab.ylabel(r'$v$ (m / s)', rotation='vertical', fontsize=16)
     pylab.legend()
-    pylab.xlim(xmin=-maxFeatureDepth * 1000)
+    pylab.xlim(xmin=-maxFeatureDepth * scaleFactor)
     pylab.xlim(xmax=0)
     pylab.savefig(figprefix + 'Deposition.png')
 
     pylab.figure(figTheta.number)
-    pylab.xlabel(r'z (mm)', fontsize=16)
-    pylab.ylabel(r'$\theta$', rotation='horizontal', fontsize=16)
+    pylab.xlabel(xlabel, fontsize=16)
+    pylab.ylabel(r'$\theta$', rotation='vertical', fontsize=16)
     pylab.legend(loc='lower right')
-    pylab.xlim(xmin=-maxFeatureDepth * 1000)
+    pylab.xlim(xmin=-maxFeatureDepth * scaleFactor)
     pylab.xlim(xmax=0)
     pylab.ylim(ymax=1)
     pylab.ylim(ymin=0)
     pylab.savefig(figprefix + 'Theta.png')
 
     pylab.figure(figSuppressor.number)
-    pylab.xlabel(r'z (mm)', fontsize=16)
-    pylab.ylabel(r'$C_{S}$', rotation='horizontal', fontsize=16)
+    pylab.xlabel(xlabel, fontsize=16)
+    pylab.ylabel(r'$C_{S}$ (mol / m$^3$)', rotation='vertical', fontsize=16)
     pylab.legend(loc='upper left')
-    pylab.xlim(xmin=-maxFeatureDepth * 1000)
+    pylab.xlim(xmin=-maxFeatureDepth * scaleFactor)
     pylab.xlim(xmax=0)
     pylab.ylim(ymin=0)
     pylab.savefig(figprefix + 'Suppressor.png')
 
     pylab.figure(figCupric.number)
-    pylab.xlabel(r'z (mm)', fontsize=16)
-    pylab.ylabel(r'$C_{Cu}$', rotation='horizontal', fontsize=16)
+    pylab.xlabel(xlabel, fontsize=16)
+    pylab.ylabel(r'$C_{Cu}$ (mol / m$^3$)', rotation='vertical', fontsize=16)
     pylab.ylim(ymax=parameters.bulkCupric)
     pylab.ylim(ymin=0)
     pylab.legend(loc='lower right')
-    pylab.xlim(xmin=-maxFeatureDepth * 1000)
+    pylab.xlim(xmin=-maxFeatureDepth * scaleFactor)
     pylab.xlim(xmax=0)
     pylab.savefig(figprefix + 'Cupric.png')
 
@@ -136,6 +145,6 @@ plotDeposition((-0.200, -0.250, -0.300),
 
 plotDeposition((15e-6, 25e-6, 35e-6, 45e-6, 55e-6, 65e-6, 75e-6, 85e-6),
                 'tmp/base-featureDepth-',
-                r'$h=%1.1e$ (mm)',
+                r'$h=%1.1e$ ($\mu$m)',
                 'featureDepth',
-               mulFactor=1000)
+               mulFactor=1000000)
