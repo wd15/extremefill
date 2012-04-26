@@ -161,6 +161,7 @@ __docformat__ = 'restructuredtext'
 
 from fipy import Grid1D, CellVariable, Variable, numerix, TransientTerm, DiffusionTerm, ImplicitSourceTerm, Viewer, dump
 import parameters
+import numpy
 
 def feature(delta=parameters.delta,
             deltaRef=parameters.deltaRef,
@@ -188,7 +189,9 @@ def feature(delta=parameters.delta,
             kMinus=parameters.kMinus,
             omega=parameters.omega,
             gamma=parameters.gamma,
-            filename=None):
+            filename=None,
+            sweeps=5,
+            tol=1e-10):
  
     Fbar = parameters.Fbar
     capicatance = parameters.capicatance ## F / m**2 = A s / V / m**2  
@@ -263,22 +266,37 @@ def feature(delta=parameters.delta,
     for step in range(totalSteps):
         if view:
             viewer.axes.set_title(r'$t=%1.2e$' % t)
-            viewer.plot(filename='tmp/sim' + str(step).rjust(4, '0') + '.png')
+            viewer.plot()
 
         potential.updateOld()
         cupric.updateOld()
         suppressor.updateOld()
         theta.updateOld()
 
-        for sweep in range(5):
+        for sweep in range(sweeps):
             potentialRes = potentialEq.sweep(potential, dt=dt)
             cupricRes = cupricEq.sweep(cupric, dt=dt)
             suppressorRes = suppressorEq.sweep(suppressor, dt=dt)
             thetaRes = thetaEq.sweep(theta, dt=dt)
-            
+            import numpy
+            res = numpy.array((potentialRes, cupricRes, suppressorRes, thetaRes))
+            if sweep == 0:
+                res0 = res
+            else:
+                if ((res / res0) < tol).all():
+                    break
+                
+                
+
             if PRINT:
-                print potentialRes, cupricRes, suppressorRes, thetaRes
+                print res / res0
         
+        if sweep == sweeps - 1:
+            print 'Did not reach sufficient tolerance'
+            print 'kPlus',kPlus
+            print 'kMinus',kMinus
+            print 'res',res
+
         if PRINT:
             print 'theta',theta[0]
             print 'cBar_supp',suppressor[0] / bulkSuppressor
