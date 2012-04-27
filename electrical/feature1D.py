@@ -307,12 +307,12 @@ def feature(delta=parameters.delta,
 
         t += dt
 
-        dt = dt * 1.1
+        dt = dt * 1e+10
         dt = min((dt, dtMax))
         dt = max((dt, dtMin))
 
     if view:
-        viewer.plot('k25.png')
+        viewer.plot()
         
     if filename:
         import numpy
