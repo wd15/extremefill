@@ -4,12 +4,12 @@ import parameters
 import numpy
 
 import matplotlib
-from matplotlib import rc
+#from matplotlib import rc
 
-rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+##rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 ## for Palatino and other serif fonts use:
 #rc('font',**{'family':'serif','serif':['Palatino']))
-rc('text', usetex=True)
+##rc('text', usetex=True)
 
 matplotlib.rcParams['lines.linewidth'] = 2
 #font = {'family' : 'normal',
@@ -93,8 +93,6 @@ figureOfMerits = numpy.zeros((len(appliedPotentials), len(bulkSuppressors), 4), 
 #print appliedPotentials
 #raw_input()
 for i, appliedPotential in enumerate(appliedPotentials):
-    if appliedPotential < -9.9e-1:
-        break
     for j, bulkSuppressor in enumerate(bulkSuppressors):
         filename='tmp/base-appliedPotential-%1.3e-bulkSuppressor-%1.3e' % (appliedPotential, bulkSuppressor)
         figureOfMerits[i, j, :] = figureOfMerit(filename)
@@ -110,17 +108,14 @@ a.ax.set_yscale('log')
 
 ##pylab.loglog((0.02,), (0.25,), 'ko', lw=3) 
 
-pylab.xlabel(r'$C_S$ (mol / m$^3$)', fontsize=14)
-pylab.ylabel(r'$-\eta$ (V)', fontsize=14)
+pylab.xlabel(r'$C_{\text{Supp}}$ (mol / m$^3$)', fontsize=14)
+pylab.ylabel(r'$-E_{\text{Applied}}$ (V)', fontsize=14)
 
 align = False
 
-def makeBackGroudPlot(appliedPotential, bulkSuppressor, fP, fM):
+def makeBackGroudPlot(appliedPotential, bulkSuppressor, fP, fM, showPosition=False):
     xpos = (numpy.log10(bulkSuppressor) + 4.) / 4. *  fM
     ypos = (numpy.log10(-appliedPotential) + 2) / 2. * fP   
-    pylab.axes(a.ax)
-    if align:
-        pylab.loglog((bulkSuppressor,), (-appliedPotential,), 'ko', lw=3) 
     la = pylab.axes((xpos, ypos, 0.08, 0.08), frame_on=True, axisbg='w')
     la.patch.set_alpha(0.5)
     X, depositionRate = getDepositionRate('tmp/base-appliedPotential-%1.3e-bulkSuppressor-%1.3e' % (appliedPotential, bulkSuppressor))
@@ -129,6 +124,9 @@ def makeBackGroudPlot(appliedPotential, bulkSuppressor, fP, fM):
     pylab.setp(la, ylim=(0,1e-8), xlim=(-parameters.featureDepth, 0), xticks=[], yticks=[], alpha=0.8)
     if align:
         pylab.plot((-parameters.featureDepth / 2,), (1e-8 / 2,), 'ks', lw=3) 
+    if align or showPosition:
+        pylab.axes(a.ax)
+        pylab.loglog((bulkSuppressor,), (-appliedPotential,), 'kx', lw=3, ms=8) 
 
 for fP, appliedPotential in ((0.885, -2.477e-1), (1.1, -0.02535364)):
     for fM, bulkSuppressor in ((1.8, 2.10490414e-04), (1.04, 1.96304065e-03), (0.925, 2.009e-02), (0.88, 2.05651231e-01)):
@@ -136,5 +134,15 @@ for fP, appliedPotential in ((0.885, -2.477e-1), (1.1, -0.02535364)):
 
 makeBackGroudPlot(-0.097701, 6.57933225e-03, 0.927, 0.952)
 makeBackGroudPlot(-0.39442061, 6.73415066e-02, 0.875, 0.895)
+makeBackGroudPlot(-8.697e-01, 1.024e-03, 0.844, 1.1)
+
+## experimental data points
+
+pylab.axes(a.ax)
+pylab.loglog((.08,), (0.275,), 'ko', ms=8, mfc='none', mew=2) 
+pylab.loglog((.08,), (0.25,), 'ko', ms=8, mfc='none', mew=2) 
+pylab.loglog((.02,), (0.25,), 'ko', ms=8, mfc='none', mew=2) 
+pylab.loglog((.01,), (0.2,), 'ko', ms=8, mfc='none', mew=2) 
+
 pylab.savefig('appliedPotentialVBulkSuppressor.png')
 pylab.show()

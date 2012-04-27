@@ -3,12 +3,12 @@ from fipy import dump, Grid1D
 import parameters
 import numpy
 import matplotlib
-from matplotlib import rc
+#from matplotlib import rc
 
-rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+#rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 ## for Palatino and other serif fonts use:
 #rc('font',**{'family':'serif','serif':['Palatino']))
-rc('text', usetex=True)
+#rc('text', usetex=True)
 
 matplotlib.rcParams['lines.linewidth'] = 2
 #font = {'family' : 'normal',
@@ -100,7 +100,7 @@ def plotDeposition(variables, fileprefix, label, figprefix, mulFactor=1):
 
     pylab.figure(figSuppressor.number)
     pylab.xlabel(xlabel, fontsize=16)
-    pylab.ylabel(r'$C_{S}$ (mol / m$^3$)', rotation='vertical', fontsize=16)
+    pylab.ylabel(r'$C_{\text{Supp}}$ (mol / m$^3$)', rotation='vertical', fontsize=16)
     pylab.legend(loc='upper left')
     pylab.xlim(xmin=-maxFeatureDepth * scaleFactor)
     pylab.xlim(xmax=0)
@@ -109,7 +109,7 @@ def plotDeposition(variables, fileprefix, label, figprefix, mulFactor=1):
 
     pylab.figure(figCupric.number)
     pylab.xlabel(xlabel, fontsize=16)
-    pylab.ylabel(r'$C_{Cu}$ (mol / m$^3$)', rotation='vertical', fontsize=16)
+    pylab.ylabel(r'$C_{\text{Cu}}$ (mol / m$^3$)', rotation='vertical', fontsize=16)
     pylab.ylim(ymax=parameters.bulkCupric)
     pylab.ylim(ymin=0)
     pylab.legend(loc='lower right')
@@ -130,17 +130,17 @@ plotDeposition((1e7, 1.5e7, 2e7, 2.5e7, 3e7),
 
 plotDeposition((0.001, 0.01, 0.02, 0.03, 0.04),
                'tmp/base-deltaRef-',
-               r'$\delta_{ref}=%1.1e$ (m)',
+               r'$\delta_{\text{Ref}}=%1.1e$ (m)',
                'deltaRef')
 
 plotDeposition((0.005, 0.01, 0.02, 0.04, 0.08),
                'tmp/base-bulkSuppressor-',
-               r'$C_{S}^{\infty}=%1.1e$ (mol / m$^3$)',
+               r'$C_{\text{Supp}}^{\infty}=%1.1e$ (mol / m$^3$)',
                'bulkSuppressor')
 
 plotDeposition((-0.200, -0.250, -0.300),
                 'tmp/base-appliedPotential-',
-                r'$\eta=%1.1e$ (V)',
+                r'$E_{\text{Applied}}=%1.1e$ (V)',
                 'appliedPotential')
 
 plotDeposition((15e-6, 25e-6, 35e-6, 45e-6, 55e-6, 65e-6, 75e-6, 85e-6),
