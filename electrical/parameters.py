@@ -22,3 +22,6 @@ perimeterRatio = 1. / 2.8e-6 * 0.093
 areaRatio = 0.093
 capicatance = 0.3
 Fbar = faradaysConstant / gasConstant / temperature
+
+trenchWidth = 2 * 0.093 / perimeterRatio
+fieldWidth = 2 / perimeterRatio

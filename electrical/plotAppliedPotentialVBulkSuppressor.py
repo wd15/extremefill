@@ -140,9 +140,16 @@ makeBackGroudPlot(-8.697e-01, 1.024e-03, 0.844, 1.1)
 
 pylab.axes(a.ax)
 pylab.loglog((.08,), (0.275,), 'ko', ms=8, mfc='none', mew=2) 
+#pylab.arrow(.08, 0.275, -0.05, 0, length_includes_head=True, head_width=.01, fill=True)
 pylab.loglog((.08,), (0.25,), 'ko', ms=8, mfc='none', mew=2) 
-pylab.loglog((.02,), (0.25,), 'ko', ms=8, mfc='none', mew=2) 
-pylab.loglog((.01,), (0.2,), 'ko', ms=8, mfc='none', mew=2) 
+#pylab.arrow(.08, 0.25, -0.05, 0, length_includes_head=True)
+
+from matplotlib.patches import FancyArrowPatch
+a.ax.add_patch(FancyArrowPatch((.08, 0.275),(.03, 0.275),arrowstyle='->',mutation_scale=30, lw=2))
+a.ax.add_patch(FancyArrowPatch((.08, 0.25),(.03, 0.25),arrowstyle='->',mutation_scale=30, lw=2))
+
+pylab.loglog((.02,), (0.25,), 'ko', ms=8, mew=2) 
+pylab.loglog((.01,), (0.2,), 'ko', ms=8, mew=2) 
 
 pylab.savefig('appliedPotentialVBulkSuppressor.png')
 pylab.show()
