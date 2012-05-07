@@ -44,7 +44,7 @@ def me(n):
     m, e = s.split('e')
     return float(m), int(e)
 
-def plotDeposition(variables, fileprefix, label, figprefix, mulFactor=1, legend=1, loc='upper left', maxSuppressor=parameters.bulkSuppressor):
+def plotDeposition(variables, fileprefix, label, figprefix, mulFactor=1, legend=1, loc='upper left', maxSuppressor=parameters.bulkSuppressor, lfs=10, subplot=False):
 
     pylab.figure()
     figDeposition = pylab.subplot(221)
@@ -103,7 +103,7 @@ def plotDeposition(variables, fileprefix, label, figprefix, mulFactor=1, legend=
     pylab.axes(figTheta)
     if legend == 2:
         l = pylab.legend(loc=loc)
-    pylab.ylabel(r'$\theta$', rotation='vertical', fontsize=12)
+    pylab.ylabel(r'$\theta$', rotation='vertical')
     pylab.xlim(xmin=-maxFeatureDepth * scaleFactor)
     pylab.xlim(xmax=0)
     pylab.ylim(ymax=1* 1.05)
@@ -134,6 +134,22 @@ def plotDeposition(variables, fileprefix, label, figprefix, mulFactor=1, legend=
 
     l.labelspacing = 0
     l.columnspacing = 0.1
+    for t in l.texts:
+        t.set_size(lfs)
+
+    if subplot is True:
+##       val = pylab.rcParams['xtick.major.pad']
+##       pylab.rcParams['xtick.major.pad']='2'
+        ax = pylab.axes(figDeposition)
+        from plotkPlusVPotentialDrop import plotkPlusVPotential
+        abg = pylab.axes((0.2, 0.7, 0.18, 0.18), frame_on=True, axisbg='y')
+        plotkPlusVPotential()
+##        pylab.rcParams['xtick.major.pad'] = val
+        from matplotlib.patches import FancyArrowPatch
+        abg.add_patch(FancyArrowPatch((25, 0.13), (13, -0.025), arrowstyle='<-', mutation_scale=20, lw=2, color='red', clip_on=False, alpha=0.7))
+        abg.add_patch(FancyArrowPatch((5, 0.07), (5, -0.044), arrowstyle='<-', mutation_scale=20, lw=2, color='green', clip_on=False, alpha=0.7))
+        pylab.text(1.5, 0.17, r'(e)', fontsize=12)
+##        pylab.plot((25, 1), (0.15, -0.05), 'r', clip_on=False, alpha=0.5)
 
     pylab.savefig(figprefix + '.png')
 
@@ -141,7 +157,8 @@ def plotDeposition(variables, fileprefix, label, figprefix, mulFactor=1, legend=
 plotDeposition((0.01, 5., 25., 50., 100., 150., 1000.),
                'tmp/base-kPlus-',
                r'$k^+=%1.1f\times 10^{%i}$ (m$^3$ / mol s)',
-               'kPlus')
+               'kPlus',
+               legend=3, lfs=8, subplot=True)
 
 plotDeposition((1e7, 1.5e7, 2e7, 2.5e7, 3e7),
                'tmp/base-kMinus-',

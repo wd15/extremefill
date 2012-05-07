@@ -18,13 +18,14 @@ y0 = -h - 0.00001 * scale
 
 eqnFont = 9
 width = x1 - x0
+
 fig = pylab.figure()
 ax = fig.add_subplot(111, aspect='equal')
 
 
-ax.add_patch(pylab.Rectangle((-w / 2, -h), w, h, alpha=0.2, color='black', ec='none'))
-ax.add_patch(pylab.Rectangle((-r / 2, 0), r, d, alpha=0.2, color='black', ec='none'))
-ax.add_patch(pylab.Rectangle((-r / 2, d), r, L - d, alpha=0.1, color='black', ec='none'))
+ax.add_patch(pylab.Rectangle((-w / 2, -h), w, h, alpha=0.2, color='black', ec='none', zorder=1))
+ax.add_patch(pylab.Rectangle((-r / 2, 0), r, d, alpha=0.2, color='black', ec='none', zorder=1))
+ax.add_patch(pylab.Rectangle((-r / 2, d), r, L - d, alpha=0.1, color='black', ec='none', zorder=1))
 # ax.add_patch(pylab.Rectangle((x0, L), width, y1 - L, alpha=0.05, color='black', ec='none'))
 # ax.add_patch(pylab.Rectangle((x0, y0), width, -h - y0, alpha=0.5, color='black', ec='none'))
 
@@ -126,6 +127,16 @@ ax.add_patch(FancyArrowPatch((kX, kYY),(w / 2 - 1.5, kYYY), arrowstyle='->',muta
 kkYY = kY + 3
 ax.add_patch(FancyArrowPatch((kX, kkYY),(w / 2 + 4, 1.5), arrowstyle='->',mutation_scale=10, lw=1))
 
+## break in axes
+breakX = d + (L - d) / 2
+hX = 10
+ls = 10
+diag = 5
+ax.add_patch(pylab.Rectangle((x0, breakX - hX / 2), x1 - x0 + 0.0, hX, alpha=1.0, color='white', ec='white', zorder=100, clip_on=False))
+ax.plot((x0 - ls / 2, x0 + ls / 2), (breakX - hX / 2 + diag / 2, breakX - hX / 2 - diag / 2), 'k', clip_on=False, zorder=101)
+ax.plot((x0 - ls / 2, x0 + ls / 2), (breakX + hX / 2 + diag / 2, breakX + hX / 2 - diag / 2), 'k', clip_on=False, zorder=101)
+ax.plot((x1 - ls / 2, x1 + ls / 2), (breakX - hX / 2 + diag / 2, breakX - hX / 2 - diag / 2), 'k', clip_on=False, zorder=101)
+ax.plot((x1 - ls / 2, x1 + ls / 2), (breakX + hX / 2 + diag / 2, breakX + hX / 2 - diag / 2), 'k', clip_on=False, zorder=101)
 
 pylab.savefig('schematic.png')
 pylab.show()
