@@ -16,8 +16,10 @@ matplotlib.rcParams['lines.linewidth'] = 2
 #        'weight' : 'normal',
 #        'size'   : 12}
 #matplotlib.rc('font', **font)
+fontsize=16
 matplotlib.rcParams['legend.fontsize'] = 11
-
+matplotlib.rcParams['xtick.labelsize'] = fontsize
+matplotlib.rcParams['ytick.labelsize'] = fontsize
 def getX(featureDepth):
     L = parameters.delta + featureDepth
     N = 1000
@@ -70,86 +72,83 @@ def getDepositionRate(filename):
     current = cbar * I0 * E(-potential)
     return X, parameters.omega * current / parameters.charge / parameters.faradaysConstant
 
-##kPlus=150
-##kMinus=1e8
-##filename='tmp/base-kPlus-' + str(kPlus) + '-kMinus-' + str(kMinus) + '.gz'
-##print figureOfMerit(filename) 
-##raw_input('stopped')
-
-# ax = pylab.subplot(111)
-# ax.set_xscale('log')
-# ax.set_yscale('log')
-# def log_10_product(x, pos):
-#     """The two args are the value and tick position.
-#     Label ticks with the product of the exponentiation"""
-#     return '%1i' % (x)
-# formatter = pylab.FuncFormatter(log_10_product)
-# ax.xaxis.set_major_formatter(formatter)
-# ax.yaxis.set_major_formatter(formatter)
-
-from  potentialVsuppressorStudy import appliedPotentials, bulkSuppressors
-figureOfMerits = numpy.zeros((len(appliedPotentials), len(bulkSuppressors), 4), 'd')
-#print bulkSuppressors
-#print appliedPotentials
-#raw_input()
-for i, appliedPotential in enumerate(appliedPotentials):
-    for j, bulkSuppressor in enumerate(bulkSuppressors):
-        filename='tmp/base-appliedPotential-%1.3e-bulkSuppressor-%1.3e' % (appliedPotential, bulkSuppressor)
-        figureOfMerits[i, j, :] = figureOfMerit(filename)
-
-a = pylab.contourf(bulkSuppressors, -appliedPotentials, figureOfMerits[...,0], (-1e+10, 1e+10), colors=('red',))
-a = pylab.contourf(bulkSuppressors, -appliedPotentials, figureOfMerits[...,1], (-1e+10, 0), colors=('orange',))
-a = pylab.contourf(bulkSuppressors, -appliedPotentials, figureOfMerits[...,0], (-1e+10, 0), colors=('green',))
-a = pylab.contourf(bulkSuppressors, -appliedPotentials, figureOfMerits[...,2], (-1e+10, V / 10000), colors=('blue',))
-a = pylab.contour(bulkSuppressors, -appliedPotentials, figureOfMerits[...,3], (-1e+10, 0.5, 1e+10), linestyles='solid', linewidths=4, colors='k')
-
-a.ax.set_xscale('log')
-a.ax.set_yscale('log')
-
-##pylab.loglog((0.02,), (0.25,), 'ko', lw=3) 
-
-pylab.xlabel(r'$C_{\text{Supp}}$ (mol / m$^3$)', fontsize=14)
-pylab.ylabel(r'$-E_{\text{Applied}}$ (V)', fontsize=14)
-
-align = False
-
-def makeBackGroudPlot(appliedPotential, bulkSuppressor, fP, fM, showPosition=False):
+def makeBackGroudPlot(appliedPotential, bulkSuppressor, fP, fM, showPosition=False, axislabel=False, 
+align=False, mainaxes=None):
     xpos = (numpy.log10(bulkSuppressor) + 4.) / 4. *  fM
     ypos = (numpy.log10(-appliedPotential) + 2) / 2. * fP   
     la = pylab.axes((xpos, ypos, 0.08, 0.08), frame_on=True, axisbg='w')
     la.patch.set_alpha(0.5)
     X, depositionRate = getDepositionRate('tmp/base-appliedPotential-%1.3e-bulkSuppressor-%1.3e' % (appliedPotential, bulkSuppressor))
 
+    if axislabel is True:
+        pylab.xlabel(r'$z$', fontsize=fontsize, labelpad=2.4)
+        pylab.ylabel(r'$v$', fontsize=fontsize, rotation='horizontal', labelpad=-.2)
+
     pylab.plot(X, depositionRate, 'k', lw=2)
     pylab.setp(la, ylim=(0,1e-8), xlim=(-parameters.featureDepth, 0), xticks=[], yticks=[], alpha=0.8)
     if align:
         pylab.plot((-parameters.featureDepth / 2,), (1e-8 / 2,), 'ks', lw=3) 
     if align or showPosition:
-        pylab.axes(a.ax)
+        pylab.axes(mainaxes)
         pylab.loglog((bulkSuppressor,), (-appliedPotential,), 'kx', lw=3, ms=8) 
 
-for fP, appliedPotential in ((0.885, -2.477e-1), (1.1, -0.02535364)):
-    for fM, bulkSuppressor in ((1.8, 2.10490414e-04), (1.04, 1.96304065e-03), (0.925, 2.009e-02), (0.88, 2.05651231e-01)):
-        makeBackGroudPlot(appliedPotential, bulkSuppressor, fP, fM)
 
-makeBackGroudPlot(-0.097701, 6.57933225e-03, 0.927, 0.952)
-makeBackGroudPlot(-0.39442061, 6.73415066e-02, 0.875, 0.895)
-makeBackGroudPlot(-8.697e-01, 1.024e-03, 0.844, 1.1)
+def plot(filesuffix='.png'):
 
-## experimental data points
+    from  potentialVsuppressorStudy import appliedPotentials, bulkSuppressors
+    figureOfMerits = numpy.zeros((len(appliedPotentials), len(bulkSuppressors), 4), 'd')
+    #print bulkSuppressors
+    #print appliedPotentials
+    #raw_input()
+    for i, appliedPotential in enumerate(appliedPotentials):
+        for j, bulkSuppressor in enumerate(bulkSuppressors):
+            filename='tmp/base-appliedPotential-%1.3e-bulkSuppressor-%1.3e' % (appliedPotential, bulkSuppressor)
+            figureOfMerits[i, j, :] = figureOfMerit(filename)
 
-pylab.axes(a.ax)
-pylab.loglog((.08,), (0.275,), 'ko', ms=8, mfc='none', mew=2) 
-#pylab.arrow(.08, 0.275, -0.05, 0, length_includes_head=True, head_width=.01, fill=True)
-pylab.loglog((.08,), (0.25,), 'ko', ms=8, mfc='none', mew=2) 
-#pylab.arrow(.08, 0.25, -0.05, 0, length_includes_head=True)
+    a = pylab.contourf(bulkSuppressors, -appliedPotentials, figureOfMerits[...,0], (-1e+10, 1e+10), colors=('red',))
+    a = pylab.contourf(bulkSuppressors, -appliedPotentials, figureOfMerits[...,1], (-1e+10, 0), colors=('orange',))
+    a = pylab.contourf(bulkSuppressors, -appliedPotentials, figureOfMerits[...,0], (-1e+10, 0), colors=('green',))
+    a = pylab.contourf(bulkSuppressors, -appliedPotentials, figureOfMerits[...,2], (-1e+10, V / 10000), colors=('blue',))
+    a = pylab.contour(bulkSuppressors, -appliedPotentials, figureOfMerits[...,3], (-1e+10, 0.5, 1e+10), linestyles='solid', linewidths=4, colors='k')
 
-from matplotlib.patches import FancyArrowPatch
-a.ax.add_patch(FancyArrowPatch((.08, 0.275),(.03, 0.275),arrowstyle='->',mutation_scale=30, lw=2))
-a.ax.add_patch(FancyArrowPatch((.08, 0.25),(.03, 0.25),arrowstyle='->',mutation_scale=30, lw=2))
+    a.ax.set_xscale('log')
+    a.ax.set_yscale('log')
 
-pylab.loglog((.02,), (0.25,), 'ko', ms=8, mew=2) 
-pylab.loglog((.01,), (0.2,), 'ko', ms=8, mew=2) 
+    ##pylab.loglog((0.02,), (0.25,), 'ko', lw=3) 
 
-pylab.savefig('appliedPotentialVBulkSuppressor.png')
-pylab.show()
+    pylab.xlabel(r'$C_{\text{Supp}}$ (mol / m$^3$)', fontsize=fontsize)
+    pylab.ylabel(r'$-E_{\text{Applied}}$ (V)', fontsize=fontsize)
+
+    pylab.text(0.1, 0.04, r'I', fontsize=fontsize)
+    pylab.text(0.003, 0.04, r'II', fontsize=fontsize)
+    pylab.text(0.0004, 0.04, r'III', fontsize=fontsize)
+    pylab.text(0.0002, 0.5, r'IV', fontsize=fontsize)
+
+    for fP, appliedPotential in ((0.885, -2.477e-1), (1.1, -0.02535364)):
+        for fM, bulkSuppressor in ((1.8, 2.10490414e-04), (1.04, 1.96304065e-03), (0.925, 2.009e-02), (0.88, 2.05651231e-01)):
+            makeBackGroudPlot(appliedPotential, bulkSuppressor, fP, fM, mainaxes=a.ax)
+
+    makeBackGroudPlot(-0.097701, 6.57933225e-03, 0.927, 0.952, axislabel=True, mainaxes=a.ax)
+    makeBackGroudPlot(-0.39442061, 6.73415066e-02, 0.875, 0.895, mainaxes=a.ax)
+    makeBackGroudPlot(-8.697e-01, 1.024e-03, 0.844, 1.1, mainaxes=a.ax)
+
+    ## experimental data points
+
+    pylab.axes(a.ax)
+    pylab.loglog((.08,), (0.275,), 'ko', ms=8, mfc='none', mew=2) 
+    #pylab.arrow(.08, 0.275, -0.05, 0, length_includes_head=True, head_width=.01, fill=True)
+    pylab.loglog((.08,), (0.25,), 'ko', ms=8, mfc='none', mew=2) 
+    #pylab.arrow(.08, 0.25, -0.05, 0, length_includes_head=True)
+
+    from matplotlib.patches import FancyArrowPatch
+    a.ax.add_patch(FancyArrowPatch((.08, 0.275),(.03, 0.275),arrowstyle='->',mutation_scale=30, lw=2))
+    a.ax.add_patch(FancyArrowPatch((.08, 0.25),(.03, 0.25),arrowstyle='->',mutation_scale=30, lw=2))
+
+    pylab.loglog((.02,), (0.25,), 'ko', ms=8, mew=2) 
+    pylab.loglog((.01,), (0.2,), 'ko', ms=8, mew=2) 
+
+    pylab.savefig('appliedPotentialVBulkSuppressor' + filesuffix)
+
+if __name__ == '__main__':
+    plot()
+    pylab.show()

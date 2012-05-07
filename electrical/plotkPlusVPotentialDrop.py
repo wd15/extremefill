@@ -35,10 +35,12 @@ for i, kPlus in enumerate(kPluses):
 
 def plotkPlusVPotential():
     pylab.semilogx(kPluses, potentials, 'k', lw=1)
+    pylab.semilogx((1, 1000), (0.25, 0.25), 'k--', lw=1)
     pylab.xlabel(r'$k^+$', fontsize=10, labelpad=-3)
     pylab.xticks((1, 10, 100, 1000), (r'$1$', r'$10$', r'$100$', r'$1000$'), fontsize=8)
     pylab.yticks((0.1, 0.2), fontsize=8)
     pylab.ylim(0.04, 0.27)
+
     pylab.ylabel(r'$\eta$', fontsize=10, rotation='horizontal', labelpad=-2)
 ##    pylab.title(r'(e)', fontsize=10)
 
