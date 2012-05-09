@@ -44,7 +44,7 @@ def me(n):
     m, e = s.split('e')
     return float(m), int(e)
 
-def plotDeposition(variables, fileprefix, label, figprefix, mulFactor=1, legend=1, loc='upper left', maxSuppressor=parameters.bulkSuppressor, lfs=10, subplot=False, filesuffix='.png'):
+def plotDeposition(variables, fileprefix, label, figprefix, mulFactor=1, legend=1, loc='upper left', maxSuppressor=parameters.bulkSuppressor, lfs=10, subplot=False, filesuffix='.png,', xticks=(-50, -40, -30, -20, -10, 0), replaceString=None):
 
     pylab.figure()
     figDeposition = pylab.subplot(221)
@@ -55,7 +55,7 @@ def plotDeposition(variables, fileprefix, label, figprefix, mulFactor=1, legend=
     print '**************'
     print 'varying ' + figprefix
 
-    xlabel = r'$z$ ($\mu$m)'
+    xlabel = r'$z$ $\left(\micro\metre\right)$'
     scaleFactor = 1000000
 
     for variable in variables:
@@ -74,17 +74,24 @@ def plotDeposition(variables, fileprefix, label, figprefix, mulFactor=1, legend=
         current = cbar * I0 * E(-potential)
         depositionRate = parameters.omega * current / parameters.charge / parameters.faradaysConstant   
 
+        if 'times' in label:
+            Label = label % me(variable * mulFactor)
+        else:
+            Label = label % (variable * mulFactor)
+            if replaceString is not None:
+                Label = Label.replace(replaceString, '$')
+
         pylab.axes(figDeposition)
-        pylab.plot(X * scaleFactor, depositionRate, label=label % me(variable * mulFactor))
+        pylab.plot(X * scaleFactor, depositionRate, label=Label)
 
         pylab.axes(figTheta)
-        pylab.plot(X * scaleFactor, theta, label=label % me(variable * mulFactor))
+        pylab.plot(X * scaleFactor, theta, label=Label)
 
         pylab.axes(figSuppressor)
-        pylab.plot(X * scaleFactor, suppressor, label=label % me(variable * mulFactor))
+        pylab.plot(X * scaleFactor, suppressor, label=Label)
 
         pylab.axes(figCupric)
-        pylab.plot(X * scaleFactor, cupric, label=label % me(variable * mulFactor))
+        pylab.plot(X * scaleFactor, cupric, label=Label)
         
         print '------------'
         print figprefix + ' value: ' + str(data[figprefix])
@@ -93,11 +100,12 @@ def plotDeposition(variables, fileprefix, label, figprefix, mulFactor=1, legend=
     ax = pylab.axes(figDeposition)
     if legend == 1:
         l = pylab.legend()
-    pylab.ylabel(r'$v$ (m / s)', rotation='vertical', fontsize=14)
+    pylab.ylabel(r'$v$ $\left(\metre\per\second\right)$', rotation='vertical', fontsize=14)
     pylab.xlim(xmin=-maxFeatureDepth * scaleFactor)
     pylab.xlim(xmax=0)
     pylab.ylim(ymax=8e-9)
     pylab.ylim(ymin=0.0)
+    pylab.xticks(xticks)
     pylab.title('(a)')
 
     pylab.axes(figTheta)
@@ -108,28 +116,31 @@ def plotDeposition(variables, fileprefix, label, figprefix, mulFactor=1, legend=
     pylab.xlim(xmax=0)
     pylab.ylim(ymax=1* 1.05)
     pylab.ylim(ymin=0)
+    pylab.xticks(xticks)
     pylab.title('(b)')
     
     pylab.axes(figSuppressor)
     if legend == 3:
         l = pylab.legend(loc=loc)
     pylab.xlabel(xlabel, fontsize=14)
-    pylab.ylabel(r'$C_{\text{Supp}}$ (mol / m$^3$)', rotation='vertical', fontsize=14)
+    pylab.ylabel(r'$C_{\text{Supp}}$ $\left(\mole\per\power{\metre}{3}\right)$', rotation='vertical', fontsize=14)
     pylab.xlim(xmin=-maxFeatureDepth * scaleFactor)
     pylab.xlim(xmax=0)
     pylab.ylim(ymin=0)
     pylab.ylim(ymax=maxSuppressor* 1.05)
+    pylab.xticks(xticks)
     pylab.title('(c)')
 
     pylab.axes(figCupric)
     if legend == 4:
         l = pylab.legend(loc=loc)
     pylab.xlabel(xlabel, fontsize=14)
-    pylab.ylabel(r'$C_{\text{Cu}}$ (mol / m$^3$)', rotation='vertical', fontsize=14)
+    pylab.ylabel(r'$C_{\text{Cu}}$ $\left(\mole\per\power{\metre}{3}\right)$', rotation='vertical', fontsize=14, labelpad=-3)
     pylab.ylim(ymax=parameters.bulkCupric * 1.05)
     pylab.ylim(ymin=0)
     pylab.xlim(xmin=-maxFeatureDepth * scaleFactor)
     pylab.xlim(xmax=0)
+    pylab.xticks(xticks)
     pylab.title('(d)')
 
     l.labelspacing = 0
@@ -151,46 +162,52 @@ def plotDeposition(variables, fileprefix, label, figprefix, mulFactor=1, legend=
         pylab.text(1.5, 0.21, r'(e)', fontsize=12)
 ##        pylab.plot((25, 1), (0.15, -0.05), 'r', clip_on=False, alpha=0.5)
 
-    pylab.savefig(figprefix + filesuffix)
+    if type(filesuffix) is str:
+        filesuffix = (filesuffix,)
+
+    for fs in filesuffix:
+        pylab.savefig(figprefix + fs)
 
 
 def plot1(filesuffix='.png'):
 
     plotDeposition((0.01, 5., 25., 50., 100., 1000.),
                    'tmp/base-kPlus-',
-                   r'$k^+=%1.1f\times 10^{%i}$ (m$^3$ / mol s)',
+                   r'$k^+=%4.2f$ $\power{\metre}{3}\per\mole\cdot\second$',
                    'kPlus',
-                   legend=3, lfs=8, subplot=True, filesuffix=filesuffix)
+                   legend=3, lfs=8, subplot=True, filesuffix=filesuffix, replaceString='.00$')
 
     plotDeposition((1e7, 1.5e7, 2e7, 2.5e7, 3e7),
                    'tmp/base-kMinus-',
-                   r'$k^-=%1.1f\times 10^{%i}$ (1 / m)',
-                   'kMinus')
+                   r'$k^-=%1.1f\times 10^{%i}$ $1\per\metre$',
+                   'kMinus', filesuffix=filesuffix)
 
     plotDeposition((0.001, 0.005, 0.01, 0.02, 0.03, 0.04),
                    'tmp/base-deltaRef-',
-                   r'$L=%1.1f\times 10^{%i}$ (m)',
+                   r'$L=%1.3f$ $\metre$',
                    'deltaRef',
                    legend=2, 
-                   loc='upper right')
+                   loc='upper right', filesuffix=filesuffix)
 
     plotDeposition((0.005, 0.01, 0.02, 0.04),
                    'tmp/base-bulkSuppressor-',
-                   r'$C_{\text{Supp}}^{\infty}=%1.1f\times 10^{%i}$ (mol / m$^3$)',
+                   r'$C_{\text{Supp}}^{\infty}=%1.3f$ $\mole\per\power{\metre}{3}$',
                    'bulkSuppressor',
-                   maxSuppressor=0.04)
+                   maxSuppressor=0.04, filesuffix=filesuffix)
 
     plotDeposition((-0.200, -0.250, -0.300),
                    'tmp/base-appliedPotential-',
-                   r'$E_{\text{Applied}}=%1.1f\times 10^{%i}$ (V)',
-                   'appliedPotential')
+                   r'$E_{\text{Applied}}=%1.2f$ $\volt$',
+                   'appliedPotential', filesuffix=filesuffix)
 
     plotDeposition((15e-6, 25e-6, 35e-6, 45e-6, 55e-6, 65e-6, 75e-6, 85e-6),
                    'tmp/base-featureDepth-',
-                   r'$h=%1.1f\times 10^{%i}$ ($\mu$m)',
+                   r'$h=%1.0f$ $\micro\metre$',
                    'featureDepth',
                    mulFactor=1000000,
-                   legend=3)
+                   legend=3,
+                   filesuffix=filesuffix,
+                   xticks=(-80, -60, -40, -20, 0))
 
 if __name__ == '__main__':
     plot1()

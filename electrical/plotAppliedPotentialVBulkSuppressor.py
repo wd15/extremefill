@@ -74,18 +74,27 @@ def getDepositionRate(filename):
 
 def makeBackGroudPlot(appliedPotential, bulkSuppressor, fP, fM, showPosition=False, axislabel=False, 
 align=False, mainaxes=None):
+    alpha = 0.5
     xpos = (numpy.log10(bulkSuppressor) + 4.) / 4. *  fM
     ypos = (numpy.log10(-appliedPotential) + 2) / 2. * fP   
     la = pylab.axes((xpos, ypos, 0.08, 0.08), frame_on=True, axisbg='w')
     la.patch.set_alpha(0.5)
     X, depositionRate = getDepositionRate('tmp/base-appliedPotential-%1.3e-bulkSuppressor-%1.3e' % (appliedPotential, bulkSuppressor))
+    
+    ylim=(0,1e-8)
+    xlim=(-parameters.featureDepth, 0)
 
     if axislabel is True:
-        pylab.xlabel(r'$z$', fontsize=fontsize, labelpad=2.4)
-        pylab.ylabel(r'$v$', fontsize=fontsize, rotation='horizontal', labelpad=-.2)
+        pylab.xlabel(r'$\bm z$', fontsize=fontsize, labelpad=3.5, alpha=1)
+        pylab.ylabel(r'$\bm v$', fontsize=fontsize, rotation='horizontal', labelpad=2, alpha=1)
+        from matplotlib.patches import FancyArrowPatch
+        disx = (xlim[1] - xlim[0]) * 1.4
+        disy = (ylim[1] - ylim[0]) * 1.5
+        la.add_patch(FancyArrowPatch((xlim[0] - disx * 0.025, ylim[0]),(xlim[0] + disx, ylim[0]),arrowstyle='-|>',mutation_scale=20, lw=2, clip_on=False, facecolor='black'))
+        la.add_patch(FancyArrowPatch((xlim[0], ylim[0] - ylim[1] / 20),(xlim[0], ylim[0] + disy),arrowstyle='-|>',mutation_scale=20, lw=2, clip_on=False, facecolor='black'))
 
-    pylab.plot(X, depositionRate, 'k', lw=2)
-    pylab.setp(la, ylim=(0,1e-8), xlim=(-parameters.featureDepth, 0), xticks=[], yticks=[], alpha=0.8)
+    pylab.plot(X, depositionRate, 'k', lw=2, alpha=alpha)
+    pylab.setp(la, ylim=ylim, xlim=xlim, xticks=[], yticks=[], alpha=alpha)
     if align:
         pylab.plot((-parameters.featureDepth / 2,), (1e-8 / 2,), 'ks', lw=3) 
     if align or showPosition:
@@ -116,8 +125,8 @@ def plot(filesuffix='.png'):
 
     ##pylab.loglog((0.02,), (0.25,), 'ko', lw=3) 
 
-    pylab.xlabel(r'$C_{\text{Supp}}$ (mol / m$^3$)', fontsize=fontsize)
-    pylab.ylabel(r'$-E_{\text{Applied}}$ (V)', fontsize=fontsize)
+    pylab.xlabel(r'$C_{\text{Supp}}$ $\left(\mole\per\power{\metre}{3}\right)$', fontsize=fontsize)
+    pylab.ylabel(r'$-E_{\text{Applied}}$ $\left(\volt\right)$', fontsize=fontsize)
 
     pylab.text(0.1, 0.04, r'I', fontsize=fontsize)
     pylab.text(0.003, 0.04, r'II', fontsize=fontsize)
@@ -147,7 +156,8 @@ def plot(filesuffix='.png'):
     pylab.loglog((.02,), (0.25,), 'ko', ms=8, mew=2) 
     pylab.loglog((.01,), (0.2,), 'ko', ms=8, mew=2) 
 
-    pylab.savefig('appliedPotentialVBulkSuppressor' + filesuffix)
+    for fs in filesuffix:
+        pylab.savefig('appliedPotentialVBulkSuppressor' + fs)
 
 if __name__ == '__main__':
     plot()

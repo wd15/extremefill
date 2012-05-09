@@ -3,7 +3,7 @@ import parameters
 import matplotlib
 from matplotlib.patches import FancyArrowPatch
 
-def plot(filesuffix='.png'):
+def plot(filesuffix=('.png',)):
 
     matplotlib.rcParams['text.latex.preamble']=[r"\usepackage{amsmath}"]
 
@@ -140,7 +140,8 @@ def plot(filesuffix='.png'):
     ax.plot((x1 - ls / 2, x1 + ls / 2), (breakX - hX / 2 + diag / 2, breakX - hX / 2 - diag / 2), 'k', clip_on=False, zorder=101)
     ax.plot((x1 - ls / 2, x1 + ls / 2), (breakX + hX / 2 + diag / 2, breakX + hX / 2 - diag / 2), 'k', clip_on=False, zorder=101)
 
-    pylab.savefig('schematic' + filesuffix)
+    for fs in filesuffix:
+        pylab.savefig('schematic' + fs)
 
 if __name__ == '__main__':
     plot()

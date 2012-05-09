@@ -57,18 +57,35 @@ def getDepositionRate(filename):
     current = cbar * I0 * E(-potential)
     return X, parameters.omega * current / parameters.charge / parameters.faradaysConstant
 
-def makeBackGroudPlot(kPlus, kMinus, xpos, ypos, axisbg=None, axeslabel=False):
-    
-    a = pylab.axes((xpos, ypos, 0.08, 0.08), frame_on=True, axisbg='w')
-    a.patch.set_alpha(0.5)
-    X, depositionRate = getDepositionRate('tmp/base-kPlus-%1.2e-kMinus-%1.2e' % (kPlus, kMinus))
-    if axeslabel is True:
-        pylab.xlabel(r'$z$', fontsize=fontsize, labelpad=2.4)
-        pylab.ylabel(r'$v$', fontsize=fontsize, rotation='horizontal', labelpad=-.2)
-    pylab.plot(X, depositionRate, 'k', lw=2)
-    pylab.setp(a, ylim=(0,1e-8), xlim=(-parameters.featureDepth, 0), xticks=[], yticks=[], alpha=0.8)
+def makeBackGroudPlot(kPlus, kMinus, xpos, ypos, axisbg=None, axeslabel=False, align=False, mainaxes=None):
+    alpha = 0.5
+    a = pylab.axes((xpos, ypos, 0.08, 0.08), frame_on=True, axisbg='w', alpha=alpha)
+    a.patch.set_alpha(alpha)
 
-def plot(filesuffix='.png'):
+    X, depositionRate = getDepositionRate('tmp/base-kPlus-%1.2e-kMinus-%1.2e' % (kPlus, kMinus))
+    xlim = (-parameters.featureDepth, 0)
+    ylim = (0,1e-8)
+    if axeslabel is True:
+        pylab.xlabel(r'$\bm z$', fontsize=fontsize, labelpad=3.5, alpha=1)
+        pylab.ylabel(r'$\bm v$', fontsize=fontsize, rotation='horizontal', labelpad=2, alpha=1)
+        from matplotlib.patches import FancyArrowPatch
+        disx = (xlim[1] - xlim[0]) * 1.4
+        disy = (ylim[1] - ylim[0]) * 1.5
+        a.add_patch(FancyArrowPatch((xlim[0] - disx * 0.025, ylim[0]),(xlim[0] + disx, ylim[0]),arrowstyle='-|>',mutation_scale=20, lw=2, clip_on=False, facecolor='black'))
+        a.add_patch(FancyArrowPatch((xlim[0], ylim[0] - ylim[1] / 20),(xlim[0], ylim[0] + disy),arrowstyle='-|>',mutation_scale=20, lw=2, clip_on=False, facecolor='black'))
+
+    pylab.plot(X, depositionRate, 'k', lw=2, alpha=alpha)
+    pylab.setp(a, ylim=ylim, xlim=xlim, xticks=[], yticks=[], alpha=alpha)
+    if align:
+        pylab.plot((-parameters.featureDepth / 2,), (1e-8 / 2,), 'ks', lw=3) 
+    if align:
+        pylab.axes(mainaxes)
+        pylab.loglog((kMinus,), (kPlus,), 'kx', lw=3, ms=8) 
+    a.patch.set_alpha(alpha)
+    
+        
+
+def plot(filesuffix=('.png',)):
 
     pylab.figure()
     kPluses = 10**numpy.linspace(0, 3, 100)
@@ -97,8 +114,8 @@ def plot(filesuffix='.png'):
     a.ax.set_yscale('log')
     pylab.xticks((10**6, 10**7, 10**8, 10**9), fontsize=fontsize)
     pylab.yticks((10**0, 10**1, 10**2, 10**3), fontsize=fontsize)
-    pylab.xlabel(r'$k^-$ (1 / m)', fontsize=fontsize)
-    pylab.ylabel(r'$k^+$ (m$^3$ / mol s)', fontsize=fontsize)
+    pylab.xlabel(r'$k^-$ $\left(1\per\metre\right)$', fontsize=fontsize)
+    pylab.ylabel(r'$k^+$ $\left(\power{\metre}{3}\per\mole\cdot\second\right)$', fontsize=fontsize)
 
     pylab.text(2 * 10**6, 7 * 10**2, r'I', fontsize=fontsize)
     pylab.text(3 * 10**7, 7 * 10**2, r'II', fontsize=fontsize)
@@ -107,14 +124,14 @@ def plot(filesuffix='.png'):
 
 
 
-    for fP, kPlus, paxeslabel in ((1.1,3.51e+00, False), (1.0, 9.33e+00, False), (0.9, 3.51e+01, False), (0.89, 9.33e+01, True
-    ), (0.85, 3.51e+02, False)):
-        for fM, kMinus, maxeslabel in ((1.4, 2.48e+06, False), (1.1, 7.05e+6, False), (0.95, 2.48e+07, True), (0.91, 7.05e+7, False), (0.88, 2.48e+08, False)):
+    for fP, kPlus, paxeslabel in ((1.143,3.51e+00, False), (0.975, 9.33e+00, False), (0.916, 3.51e+01, False), (0.89, 9.33e+01, False), (0.87, 3.51e+02, True)):
+        for fM, kMinus, maxeslabel in ((1.4, 2.48e+06, False), (1.07, 7.05e+6, False), (0.96, 2.48e+07, False), (0.91, 7.05e+7, False), (0.88, 2.48e+08, True)):
             xpos = (numpy.log10(kMinus) - 6.) / 3. *  fM
             ypos = numpy.log10(kPlus) / 3. * fP        
-            makeBackGroudPlot(kPlus, kMinus, xpos, ypos, axisbg=None, axeslabel=paxeslabel and maxeslabel)
+            makeBackGroudPlot(kPlus, kMinus, xpos, ypos, axisbg=None, axeslabel=paxeslabel and maxeslabel, align=False, mainaxes=a.ax)
 
-    pylab.savefig('kPlusVkMinus' + filesuffix)
+    for fs in filesuffix:
+        pylab.savefig('kPlusVkMinus' + fs)
 
 if __name__ == '__main__':
     plot()
