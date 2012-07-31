@@ -3,7 +3,7 @@ from fipy import dump, Grid1D
 import parameters
 import numpy
 import matplotlib
-import math
+
 #from matplotlib import rc
 
 #rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
@@ -44,7 +44,7 @@ def me(n):
     m, e = s.split('e')
     return float(m), int(e)
 
-def plotDeposition(variables, fileprefix, label, figprefix, mulFactor=1, legend=1, loc='upper left', maxSuppressor=parameters.bulkSuppressor, lfs=10, subplot=False, filesuffix='.png,', xticks=(-50, -40, -30, -20, -10, 0), replaceString=None):
+def plotDeposition(variables, fileprefix, label, figprefix, mulFactor=1, legend=1, loc='upper left', maxSuppressor=parameters.bulkSuppressor, lfs=10, subplot=False, filesuffix='.png,', xticks=(-50, -40, -30, -20, -10, 0), replaceString=None, colors=None):
 
     pylab.figure()
     figDeposition = pylab.subplot(221)
@@ -58,7 +58,10 @@ def plotDeposition(variables, fileprefix, label, figprefix, mulFactor=1, legend=
     xlabel = r'$z$ $\left(\micro\metre\right)$'
     scaleFactor = 1000000
 
-    for variable in variables:
+    if colors is None:
+        colors = [None] * len(variables)
+
+    for variable, color in zip(variables, colors):
         filename = fileprefix + str(variable) + '.gz'
         data = dump.read(filename)
         featureDepth = data['featureDepth']
@@ -81,17 +84,22 @@ def plotDeposition(variables, fileprefix, label, figprefix, mulFactor=1, legend=
             if replaceString is not None:
                 Label = Label.replace(replaceString, '$')
 
-        pylab.axes(figDeposition)
-        pylab.plot(X * scaleFactor, depositionRate, label=Label)
+        
+        kwargs = {'label' : label}
+        if color is not None:
+            kwargs['color'] = color
+
+        pylab.axes(figDeposition)        
+        pylab.plot(X * scaleFactor, depositionRate, **kwargs)
 
         pylab.axes(figTheta)
-        pylab.plot(X * scaleFactor, theta, label=Label)
+        pylab.plot(X * scaleFactor, theta, **kwargs)
 
         pylab.axes(figSuppressor)
-        pylab.plot(X * scaleFactor, suppressor, label=Label)
+        pylab.plot(X * scaleFactor, suppressor, **kwargs)
 
         pylab.axes(figCupric)
-        pylab.plot(X * scaleFactor, cupric, label=Label)
+        pylab.plot(X * scaleFactor, cupric, **kwargs)
         
         print '------------'
         print figprefix + ' value: ' + str(data[figprefix])
@@ -200,14 +208,15 @@ def plot1(filesuffix='.png'):
                    r'$E_{\text{Applied}}=%1.2f$ $\volt$',
                    'appliedPotential', filesuffix=filesuffix)
 
-    plotDeposition((15e-6, 25e-6, 35e-6, 45e-6, 55e-6, 65e-6, 75e-6, 85e-6),
+    plotDeposition(numpy.array((15e-6, 25e-6, 35e-6, 45e-6, 55e-6, 65e-6, 75e-6, 85e-6))[::-1],
                    'tmp/base-featureDepth-',
                    r'$h=%1.0f$ $\micro\metre$',
                    'featureDepth',
                    mulFactor=1000000,
                    legend=3,
                    filesuffix=filesuffix,
-                   xticks=(-80, -60, -40, -20, 0))
+                   xticks=(-80, -60, -40, -20, 0),
+                   colors = numpy.array(['b', 'g', 'r', 'c', 'm', 'y', 'k', '#663300'])[::-1])
 
 if __name__ == '__main__':
     plot1()
