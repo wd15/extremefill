@@ -18,7 +18,7 @@ these won't matter, but the correct version of FiPy may be required.
 Installation
 ------------
 
-Just run::
+Use
 
 $ python setup.py install
 
@@ -26,7 +26,7 @@ $ python setup.py install
 Usage
 -----
 
-To generate the the data run::
+To generate all the data required to generate the figures.
 
 >>> import extremeFill
 >>> extremFill.generateData()
@@ -38,17 +38,17 @@ paper run.
 
 >>> extremFill.generateFigures()
 
-this will generate both pdf and png images of the figures in the paper
+This will generate both pdf and png images of the figures in the paper
 using the hdf5 file or generating data that is missing from the hdf5
-file. To just generate a single figure use::
+file. To just generate a single figure.
 
 >>> extremeFill.generateFigure(5)
 
-To run a simulation with varying paramters use::
+To run a simulation with varying parameters.
 
->>> extremeFill.run(**paramaters)
+>>> extremeFill.run(**parameters)
 
-where a variety of paramters can be passed. See the documentation for
+where a variety of parameters can be passed. See the documentation for
 further details.
 
 
