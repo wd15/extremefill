@@ -1,6 +1,9 @@
 import tables
 import os
+import hashlib
 
+def getMD5Hash(textToHash=None):
+    return hashlib.md5(textToHash).hexdigest()
 
 class DictTable:
     """
@@ -17,8 +20,10 @@ class DictTable:
     def haskey(self, index):
         h5file = tables.openFile(self.h5filename, mode='a')
         groupName = self.IDprefix + str(index)
-        return hasattr(h5file.root, groupName)
-        
+        _haskey =  hasattr(h5file.root, groupName)
+        h5file.close()
+        return _haskey
+
     def __setitem__(self, index, values):
         h5file = tables.openFile(self.h5filename, mode='a')
         h5file.root._v_attrs.latestIndex = index

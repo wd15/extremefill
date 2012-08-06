@@ -1,21 +1,24 @@
-from extemeFill import run
+import tables
+from dicttable import DictTable
+from main import run
 
-def generateFigure(figureNumbers=(1, 2, 3)):
+def generateDataSet(parameter=None, values=None, datafile='data.h5'):
 
-    if fingureNumbers is int:
-        figureNumbers = (figureNumbers,)
+    
+    h5data = DictTable(datafile)
+    dataset = []
+    for value in values:
+        key = parameter + value.replace('-', 'm').replace('+', 'p') ## PyTables natural naming scheme
+        if h5data.haskey(key):
+            print 'generating data for ' + parameter + ' = ' + value
+            print
+            dataset.append(h5data[key])
+        else:
+            data = run(**{parameter : float(value)})
+            h5data[key] = data
 
-    hdf5data = Something()
-    for figureNumber in figureNumbers:
-        if figureNumber == 1:
-            baseKey = 'kPlus'
-            for kPlus in ('1e-2', '1e-1', '1e0', '5e0', '1e1', '2.5e1', '5e2', '7.5e1', '1e2', '1.25e2', '1.5e2'):
-                key = baseKey + '=' + kPlus
-                if hdf5data.haskey(key):
-                    data = hdf5data(key)
-                else:
-                    data = run(kPlus=kPlus)
-
+    return dataset
+        
 ##for kMinus in (6e7, 1e8, 5e8):
 ##    feature(kMinus=kMinus, filename='tmp/base-kMinus-' + str(kMinus) + '.gz', totalSteps=400)
 

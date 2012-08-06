@@ -1,3 +1,4 @@
+import tables
 import pylab
 from fipy import dump, Grid1D
 import parameters
@@ -44,7 +45,7 @@ def me(n):
     m, e = s.split('e')
     return float(m), int(e)
 
-def plotDeposition(variables, fileprefix, label, figprefix, mulFactor=1, legend=1, loc='upper left', maxSuppressor=parameters.bulkSuppressor, lfs=10, subplot=False, filesuffix='.png,', xticks=(-50, -40, -30, -20, -10, 0), replaceString=None, colors=None):
+def plotDeposition(variables, dataset, label, figprefix, mulFactor=1, legend=1, loc='upper left', maxSuppressor=parameters.bulkSuppressor, lfs=10, subplot=False, filesuffix='.png,', xticks=(-50, -40, -30, -20, -10, 0), replaceString=None, colors=None):
 
     pylab.figure()
     figDeposition = pylab.subplot(221)
@@ -61,14 +62,12 @@ def plotDeposition(variables, fileprefix, label, figprefix, mulFactor=1, legend=
     if colors is None:
         colors = [None] * len(variables)
 
-    for variable, color in zip(variables, colors):
-        filename = fileprefix + str(variable) + '.gz'
-        data = dump.read(filename)
+    for variable, color, data in zip(variables, colors, dataset):
+        variable = float(variable)
         featureDepth = data['featureDepth']
         X, ID = getX(featureDepth)
         maxFeatureDepth = max(featureDepth, maxFeatureDepth)
         theta = data['theta'][:ID + 1]
-        cupric = data['cupric'][:ID + 1]
         potential = data['potential'][:ID + 1]
         cupric = data['cupric'][:ID + 1]
         suppressor = data['suppressor'][:ID + 1]
@@ -179,44 +178,49 @@ def plotDeposition(variables, fileprefix, label, figprefix, mulFactor=1, legend=
 
 def plot1(filesuffix='.png'):
 
-    plotDeposition((0.01, 5., 25., 50., 100., 1000.),
-                   'tmp/base-kPlus-',
+    from generate import generateDataSet
+    parameter = 'kPlus'
+    values = ('1e-2', '5e0', '2.5e1', '5e1', '1e2', '1e3')
+    dataset = generateDataSet(parameter=parameter, values=values)
+
+    plotDeposition(values,
+                   dataset,
                    r'$k^+=%4.2f$ $\power{\metre}{3}\per\mole\cdot\second$',
-                   'kPlus',
+                   parameter,
                    legend=3, lfs=8, subplot=True, filesuffix=filesuffix, replaceString='.00$')
 
-    plotDeposition((1e7, 1.5e7, 2e7, 2.5e7, 3e7),
-                   'tmp/base-kMinus-',
-                   r'$k^-=%1.1f\times 10^{%i}$ $1\per\metre$',
-                   'kMinus', filesuffix=filesuffix)
+    # plotDeposition((1e7, 1.5e7, 2e7, 2.5e7, 3e7),
+    #                'tmp/base-kMinus-',
+    #                r'$k^-=%1.1f\times 10^{%i}$ $1\per\metre$',
+    #                'kMinus', filesuffix=filesuffix)
 
-    plotDeposition((0.001, 0.005, 0.01, 0.02, 0.03, 0.04),
-                   'tmp/base-deltaRef-',
-                   r'$L=%1.3f$ $\metre$',
-                   'deltaRef',
-                   legend=2, 
-                   loc='upper right', filesuffix=filesuffix)
+    # plotDeposition((0.001, 0.005, 0.01, 0.02, 0.03, 0.04),
+    #                'tmp/base-deltaRef-',
+    #                r'$L=%1.3f$ $\metre$',
+    #                'deltaRef',
+    #                legend=2, 
+    #                loc='upper right', filesuffix=filesuffix)
 
-    plotDeposition((0.005, 0.01, 0.02, 0.04),
-                   'tmp/base-bulkSuppressor-',
-                   r'$C_{\text{Supp}}^{\infty}=%1.3f$ $\mole\per\power{\metre}{3}$',
-                   'bulkSuppressor',
-                   maxSuppressor=0.04, filesuffix=filesuffix)
+    # plotDeposition((0.005, 0.01, 0.02, 0.04),
+    #                'tmp/base-bulkSuppressor-',
+    #                r'$C_{\text{Supp}}^{\infty}=%1.3f$ $\mole\per\power{\metre}{3}$',
+    #                'bulkSuppressor',
+    #                maxSuppressor=0.04, filesuffix=filesuffix)
 
-    plotDeposition((-0.200, -0.250, -0.300),
-                   'tmp/base-appliedPotential-',
-                   r'$E_{\text{Applied}}=%1.2f$ $\volt$',
-                   'appliedPotential', filesuffix=filesuffix)
+    # plotDeposition((-0.200, -0.250, -0.300),
+    #                'tmp/base-appliedPotential-',
+    #                r'$E_{\text{Applied}}=%1.2f$ $\volt$',
+    #                'appliedPotential', filesuffix=filesuffix)
 
-    plotDeposition(numpy.array((15e-6, 25e-6, 35e-6, 45e-6, 55e-6, 65e-6, 75e-6, 85e-6))[::-1],
-                   'tmp/base-featureDepth-',
-                   r'$h=%1.0f$ $\micro\metre$',
-                   'featureDepth',
-                   mulFactor=1000000,
-                   legend=3,
-                   filesuffix=filesuffix,
-                   xticks=(-80, -60, -40, -20, 0),
-                   colors = numpy.array(['b', 'g', 'r', 'c', 'm', 'y', 'k', '#663300'])[::-1])
+    # plotDeposition(numpy.array((15e-6, 25e-6, 35e-6, 45e-6, 55e-6, 65e-6, 75e-6, 85e-6))[::-1],
+    #                'tmp/base-featureDepth-',
+    #                r'$h=%1.0f$ $\micro\metre$',
+    #                'featureDepth',
+    #                mulFactor=1000000,
+    #                legend=3,
+    #                filesuffix=filesuffix,
+    #                xticks=(-80, -60, -40, -20, 0),
+    #                colors = numpy.array(['b', 'g', 'r', 'c', 'm', 'y', 'k', '#663300'])[::-1])
 
 if __name__ == '__main__':
     plot1()

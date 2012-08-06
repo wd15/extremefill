@@ -38,7 +38,7 @@ def run(dt=.5e-7,
         gamma=2.5e-7,
         perimeterRatio=1. / 2.8e-6 * 0.093,
         areaRatio=0.093,
-        capacitance=0.3)
+        capacitance=0.3):
 
     Fbar = faradaysConstant / gasConstant / temperature
     epsilon = 1e-30 
@@ -133,7 +133,7 @@ def run(dt=.5e-7,
             if PRINT:
                 print res / res0
         
-        if sweep == sweeps - 1:
+        if sweep == sweeps - 1 and PRINT:
             print 'Did not reach sufficient tolerance'
             print 'kPlus',kPlus
             print 'kMinus',kMinus
