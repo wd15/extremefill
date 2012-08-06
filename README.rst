@@ -18,7 +18,7 @@ these won't matter, but the correct version of FiPy may be required.
 Installation
 ------------
 
-Use
+Use::
 
 $ python setup.py install
 
@@ -28,25 +28,25 @@ Usage
 
 To generate all the data required to generate the figures.
 
->>> import extremeFill
->>> extremFill.generateData()
+>>> import extremefill
+>>> extremefill.generateData()
  
 This will run all the simulations for the paper and takes about a
 day. The data is written to an hdf5 file ``data.hdf5``, which will
 appear in the base directory. To generate all the figures from the
 paper run.
 
->>> extremFill.generateFigures()
+>>> extremefill.generateFigures()
 
 This will generate both pdf and png images of the figures in the paper
 using the hdf5 file or generating data that is missing from the hdf5
 file. To just generate a single figure.
 
->>> extremeFill.generateFigure(5)
+>>> extremefill.generateFigure(5)
 
 To run a simulation with varying parameters.
 
->>> extremeFill.run(**parameters)
+>>> extremefill.run(**parameters)
 
 where a variety of parameters can be passed. See the documentation for
 further details.
