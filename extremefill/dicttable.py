@@ -1,4 +1,3 @@
-from fipy import *
 import tables
 import os
 
@@ -14,6 +13,11 @@ class DictTable:
             os.remove(h5filename)
 
         self.h5filename = h5filename
+
+    def haskey(self, index):
+        h5file = tables.openFile(self.h5filename, mode='a')
+        groupName = self.IDprefix + str(index)
+        return hasattr(h5file.root, groupName)
         
     def __setitem__(self, index, values):
         h5file = tables.openFile(self.h5filename, mode='a')

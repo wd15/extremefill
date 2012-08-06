@@ -5,7 +5,7 @@ def generateFigure(figureNumbers=(1, 2, 3)):
     if fingureNumbers is int:
         figureNumbers = (figureNumbers,)
 
-    hdf5Data = Something()
+    hdf5data = Something()
     for figureNumber in figureNumbers:
         if figureNumber == 1:
             baseKey = 'kPlus'
