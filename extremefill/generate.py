@@ -4,18 +4,18 @@ from main import run
 
 def generateDataSet(parameter=None, values=None, datafile='data.h5'):
 
-    
     h5data = DictTable(datafile)
     dataset = []
     for value in values:
-        key = parameter + value.replace('-', 'm').replace('+', 'p') ## PyTables natural naming scheme
+        key = parameter + value.replace('-', 'm').replace('+', 'p') ## replace due to PyTables natural naming scheme
         if h5data.haskey(key):
-            print 'generating data for ' + parameter + ' = ' + value
-            print
             dataset.append(h5data[key])
         else:
-            data = run(**{parameter : float(value)})
+            print 'generating data for ' + parameter + ' = ' + value
+            print
+            data = run(totalSteps=10, **{parameter : float(value)})
             h5data[key] = data
+            dataset.append(data)
 
     return dataset
         

@@ -159,7 +159,20 @@ def run(dt=.5e-7,
     return {'potential' : numpy.array(potential),
             'cupric' : numpy.array(cupric),
             'suppressor' : numpy.array(suppressor),
-            'theta' : numpy.array(theta)}
+            'theta' : numpy.array(theta),
+            'alpha' : alpha,
+            'Fbar' : Fbar,
+            'i0' : i0,
+            'i1' : i1,
+            'bulkCupric' : bulkCupric,
+            'omega' : omega,
+            'charge' : charge,
+            'faradaysConstant' : faradaysConstant,
+            'delta' : delta,
+            'bulkSuppressor' : bulkSuppressor,
+            'featureDepth' : featureDepth,
+            'kPlus' : kPlus,
+            'appliedPotential' : appliedPotential}
 
 if __name__ == '__main__':
     import fipy.tests.doctestPlus

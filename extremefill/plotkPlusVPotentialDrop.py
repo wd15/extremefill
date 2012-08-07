@@ -21,26 +21,26 @@ def getX(featureDepth):
     X = mesh.x[:ID + 1].value
     return X, ID, dx
 
-X, ID, dx = getX(parameters.featureDepth)
 
-def potentialDrop(filename):
-    data = dump.read(filename)
-    return data['potential'][ID]
 
-potentials = np.zeros(len(kPluses), 'd')
+def getPotentials(dataset, kPluses):
+    X, ID, dx = getX(dataset[0]['featureDepth'])
+    potentials = np.zeros(len(kPluses), 'd')
+    for i, kPlus in enumerate(kPluses):
+        potentials[i] = dataset[i]['potential'][ID]
 
-for i, kPlus in enumerate(kPluses):
-    filename='tmp/base-kPlus-%1.2e-kMinus-%1.2e' % (kPlus, kMinus)
-    potentials[i] = potentialDrop(filename)
+    return potentials
 
-def plotkPlusVPotential():
-    pylab.semilogx(kPluses, potentials, 'k', lw=1)
+def plotkPlusVPotential(dataset, kPluses):
+    print [float(kPlus) for kPlus in kPluses]
+    print getPotentials(dataset, kPluses)
+    pylab.semilogx([float(kPlus) for kPlus in kPluses], getPotentials(dataset, kPluses), 'k', lw=1)
     pylab.semilogx((1, 1000), (0.25, 0.25), 'k--', lw=1)
     pylab.xlabel(r'$k^+$', fontsize=10, labelpad=-3)
     pylab.xticks((1, 10, 100, 1000), (r'$1$', r'$10$', r'$100$', r'$1000$'), fontsize=8)
     pylab.yticks((0.1, 0.2), (r'$-0.1$', r'$-0.2$'), fontsize=8)
     pylab.ylim(0.04, 0.27)
-
+    pylab.xlim(1, 1000)
     pylab.ylabel(r'$\eta$', fontsize=10, rotation='horizontal', labelpad=-8)
 ##    pylab.title(r'(e)', fontsize=10)
 

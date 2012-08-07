@@ -1,7 +1,8 @@
+## Need to import PyTables before importing fipy for some reason.
 import tables
+
 import pylab
-from fipy import dump, Grid1D
-import parameters
+from fipy import Grid1D
 import numpy
 import matplotlib
 
@@ -21,8 +22,9 @@ matplotlib.rcParams['legend.fontsize'] = 10
 matplotlib.rcParams['legend.labelspacing'] = 0.1
 matplotlib.rcParams['figure.subplot.wspace'] = 0.3
 matplotlib.rcParams['figure.subplot.hspace'] = 0.3
-def getX(featureDepth):
-    L = parameters.delta + featureDepth
+
+def getX(featureDepth, data):
+    L = data['delta'] + data['featureDepth']
     N = 1000
     dx = L / N 
     mesh = Grid1D(nx=N, dx=dx) - [[featureDepth]]
@@ -33,19 +35,16 @@ def getX(featureDepth):
     X = mesh.x[:ID + 1].value
     return X, ID
 
-def E(potential):
-    return numpy.exp(-parameters.alpha * parameters.Fbar * potential) \
-        - numpy.exp((2 - parameters.alpha) * parameters.Fbar * potential)
-
-V = parameters.omega * parameters.i0 * E(parameters.appliedPotential) / parameters.charge / parameters.faradaysConstant
-trenchWidth = 2 * parameters.areaRatio / parameters.perimeterRatio
+def E(potential, data):
+    return numpy.exp(-data['alpha'] * data['Fbar'] * potential) \
+        - numpy.exp((2 - data['alpha']) * data['Fbar'] * potential)
 
 def me(n):
     s = '%1.1e' % n
     m, e = s.split('e')
     return float(m), int(e)
 
-def plotDeposition(variables, dataset, label, figprefix, mulFactor=1, legend=1, loc='upper left', maxSuppressor=parameters.bulkSuppressor, lfs=10, subplot=False, filesuffix='.png,', xticks=(-50, -40, -30, -20, -10, 0), replaceString=None, colors=None):
+def plotDeposition(variables, dataset, label, figprefix, mulFactor=1, legend=1, loc='upper left', maxSuppressor=None, lfs=10, subplot=False, filesuffix='.png,', xticks=(-50, -40, -30, -20, -10, 0), replaceString=None, colors=None):
 
     pylab.figure()
     figDeposition = pylab.subplot(221)
@@ -62,19 +61,24 @@ def plotDeposition(variables, dataset, label, figprefix, mulFactor=1, legend=1, 
     if colors is None:
         colors = [None] * len(variables)
 
+    if maxSuppressor is None:
+        maxSuppressor = dataset[0]['bulkSuppressor']        
+        print 'maxSuppressor',maxSuppressor
+
+
     for variable, color, data in zip(variables, colors, dataset):
         variable = float(variable)
         featureDepth = data['featureDepth']
-        X, ID = getX(featureDepth)
+        X, ID = getX(featureDepth, data)
         maxFeatureDepth = max(featureDepth, maxFeatureDepth)
         theta = data['theta'][:ID + 1]
         potential = data['potential'][:ID + 1]
         cupric = data['cupric'][:ID + 1]
         suppressor = data['suppressor'][:ID + 1]
-        I0 = parameters.i0 + parameters.i1 * theta
-        cbar = cupric / parameters.bulkCupric
-        current = cbar * I0 * E(-potential)
-        depositionRate = parameters.omega * current / parameters.charge / parameters.faradaysConstant   
+        I0 = data['i0'] + data['i1'] * theta
+        cbar = cupric / data['bulkCupric']
+        current = cbar * I0 * E(-potential, data)
+        depositionRate = data['omega'] * current / data['charge'] / data['faradaysConstant']
 
         if 'times' in label:
             Label = label % me(variable * mulFactor)
@@ -143,7 +147,7 @@ def plotDeposition(variables, dataset, label, figprefix, mulFactor=1, legend=1, 
         l = pylab.legend(loc=loc)
     pylab.xlabel(xlabel, fontsize=14)
     pylab.ylabel(r'$C_{\text{Cu}}$ $\left(\mole\per\power{\metre}{3}\right)$', rotation='vertical', fontsize=14, labelpad=-3)
-    pylab.ylim(ymax=parameters.bulkCupric * 1.05)
+    pylab.ylim(ymax=data['bulkCupric'] * 1.05)
     pylab.ylim(ymin=0)
     pylab.xlim(xmin=-maxFeatureDepth * scaleFactor)
     pylab.xlim(xmax=0)
@@ -161,7 +165,7 @@ def plotDeposition(variables, dataset, label, figprefix, mulFactor=1, legend=1, 
         ax = pylab.axes(figDeposition)
         from plotkPlusVPotentialDrop import plotkPlusVPotential
         abg = pylab.axes((0.2, 0.7, 0.18, 0.18), frame_on=True, axisbg='y')
-        plotkPlusVPotential()
+        plotkPlusVPotential(dataset, variables)
 ##        pylab.rcParams['xtick.major.pad'] = val
         from matplotlib.patches import FancyArrowPatch
         abg.add_patch(FancyArrowPatch((25, 0.13), (13, -0.05), arrowstyle='<-', mutation_scale=20, lw=2, color='red', clip_on=False, alpha=0.7))
