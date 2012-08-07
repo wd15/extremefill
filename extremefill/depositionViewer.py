@@ -7,34 +7,24 @@ import numpy
 import matplotlib
 from generate import generateDataSet
 
-#from matplotlib import rc
-
-#rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
-## for Palatino and other serif fonts use:
-#rc('font',**{'family':'serif','serif':['Palatino']))
-#rc('text', usetex=True)
-
 matplotlib.rcParams['lines.linewidth'] = 2
-#font = {'family' : 'normal',
-#        'weight' : 'normal',
-#        'size'   : 12}
-#matplotlib.rc('font', **font)
 matplotlib.rcParams['legend.fontsize'] = 10
 matplotlib.rcParams['legend.labelspacing'] = 0.1
 matplotlib.rcParams['figure.subplot.wspace'] = 0.3
 matplotlib.rcParams['figure.subplot.hspace'] = 0.3
 
 class DepositionViewer(object):
-    def __init__(self, parameter, values, label):
+    def __init__(self, parameter, values, label, lfs=10):
         self.parameter = parameter
         self.dataset = generateDataSet(parameter=self.parameter, values=['%1.2e' % kPlus for kPlus in values])
         self.label = label
+        self.lfs = 8
 
-    def getX(self, featureDepth, data):
+    def getX(self, data):
         L = data['delta'] + data['featureDepth']
         N = 1000
         dx = L / N 
-        mesh = Grid1D(nx=N, dx=dx) - [[featureDepth]]
+        mesh = Grid1D(nx=N, dx=dx) - [[data['featureDepth']]]
         x = 0
         ID = numpy.argmin(abs(mesh.x - x))
         if mesh.x[ID] < x:
@@ -46,7 +36,11 @@ class DepositionViewer(object):
         return numpy.exp(-data['alpha'] * data['Fbar'] * potential) \
             - numpy.exp((2 - data['alpha']) * data['Fbar'] * potential)
 
-    def plot(self, mulFactor=1, legend=1, loc='upper left', maxSuppressor=None, lfs=10, subplot=False, filesuffix='.png,', xticks=(-50, -40, -30, -20, -10, 0), replaceString=None, colors=None, inlayDataSet=None):        
+    def _legend(self, ax):
+        if ax.colNum == 0 and ax.rowNum == 0:
+            self.legend =  pylab.legend(loc='upper left')
+        
+    def plot(self, mulFactor=1, maxSuppressor=None, filesuffix='.png,', xticks=(-50, -40, -30, -20, -10, 0), replaceString=None, colors=None):        
         
         pylab.figure()
         figDeposition = pylab.subplot(221)
@@ -69,7 +63,7 @@ class DepositionViewer(object):
         for color, data in zip(colors, self.dataset):
             variable = data[self.parameter]
             featureDepth = data['featureDepth']
-            X, ID = self.getX(featureDepth, data)
+            X, ID = self.getX(data)
             maxFeatureDepth = max(featureDepth, maxFeatureDepth)
             theta = data['theta'][:ID + 1]
             potential = data['potential'][:ID + 1]
@@ -91,7 +85,7 @@ class DepositionViewer(object):
                 if replaceString is not None:
                     Label = Label.replace(replaceString, '$')
 
-            kwargs = {'label' : self.label}
+            kwargs = {'label' : Label}
             if color is not None:
                 kwargs['color'] = color
 
@@ -112,8 +106,7 @@ class DepositionViewer(object):
             print 'voltage drop',-data['appliedPotential'] - potential[ID]
 
         ax = pylab.axes(figDeposition)
-        if legend == 1:
-            l = pylab.legend()
+        self._legend(ax)
         pylab.ylabel(r'$v$ $\left(\metre\per\second\right)$', rotation='vertical', fontsize=14)
         pylab.xlim(xmin=-maxFeatureDepth * scaleFactor)
         pylab.xlim(xmax=0)
@@ -122,9 +115,8 @@ class DepositionViewer(object):
         pylab.xticks(xticks)
         pylab.title('(a)')
 
-        pylab.axes(figTheta)
-        if legend == 2:
-            l = pylab.legend(loc=loc)
+        ax = pylab.axes(figTheta)
+        self._legend(ax)
         pylab.ylabel(r'$\theta$', rotation='vertical')
         pylab.xlim(xmin=-maxFeatureDepth * scaleFactor)
         pylab.xlim(xmax=0)
@@ -133,9 +125,8 @@ class DepositionViewer(object):
         pylab.xticks(xticks)
         pylab.title('(b)')
 
-        pylab.axes(figSuppressor)
-        if legend == 3:
-            l = pylab.legend(loc=loc)
+        ax = pylab.axes(figSuppressor)
+        self._legend(ax)
         pylab.xlabel(xlabel, fontsize=14)
         pylab.ylabel(r'$C_{\text{Supp}}$ $\left(\mole\per\power{\metre}{3}\right)$', rotation='vertical', fontsize=14)
         pylab.xlim(xmin=-maxFeatureDepth * scaleFactor)
@@ -145,9 +136,8 @@ class DepositionViewer(object):
         pylab.xticks(xticks)
         pylab.title('(c)')
 
-        pylab.axes(figCupric)
-        if legend == 4:
-            l = pylab.legend(loc=loc)
+        ax = pylab.axes(figCupric)
+        self._legend(ax)
         pylab.xlabel(xlabel, fontsize=14)
         pylab.ylabel(r'$C_{\text{Cu}}$ $\left(\mole\per\power{\metre}{3}\right)$', rotation='vertical', fontsize=14, labelpad=-3)
         pylab.ylim(ymax=data['bulkCupric'] * 1.05)
@@ -157,24 +147,13 @@ class DepositionViewer(object):
         pylab.xticks(xticks)
         pylab.title('(d)')
 
-        l.labelspacing = 0
-        l.columnspacing = 0.1
-        for t in l.texts:
-            t.set_size(lfs)
+        self.legend.labelspacing = 0
+        self.legend.columnspacing = 0.1
+        for t in self.legend.texts:
+            t.set_size(self.lfs)
 
-        if subplot is True:
-    ##       val = pylab.rcParams['xtick.major.pad']
-    ##       pylab.rcParams['xtick.major.pad']='2'
-            ax = pylab.axes(figDeposition)
-            from plotkPlusVPotentialDrop import plotkPlusVPotential
-            abg = pylab.axes((0.2, 0.7, 0.18, 0.18), frame_on=True, axisbg='y')
-            plotkPlusVPotential(inlayDataSet)
-    ##        pylab.rcParams['xtick.major.pad'] = val
-            from matplotlib.patches import FancyArrowPatch
-            abg.add_patch(FancyArrowPatch((25, 0.13), (13, -0.05), arrowstyle='<-', mutation_scale=20, lw=2, color='red', clip_on=False, alpha=0.7))
-            abg.add_patch(FancyArrowPatch((5, 0.07), (5, -0.085), arrowstyle='<-', mutation_scale=20, lw=2, color='green', clip_on=False, alpha=0.7))
-            pylab.text(1.5, 0.21, r'(e)', fontsize=12)
-    ##        pylab.plot((25, 1), (0.15, -0.05), 'r', clip_on=False, alpha=0.5)
+        self.subplot(figDeposition)
+
 
         if type(filesuffix) is str:
             filesuffix = (filesuffix,)
@@ -182,53 +161,8 @@ class DepositionViewer(object):
         for fs in filesuffix:
             pylab.savefig(self.parameter + fs)
 
+    def subplot(self, fig):
+        pass
 
-def plot1(filesuffix='.png'):
 
-    from generate import generateDataSet
-    parameter = 'kPlus'
-    values = (1e-2, 5e0, 2.5e1, 5e1, 1e2, 1e3)
-    dataset = generateDataSet(parameter=parameter, values=['%1.2e' % kPlus for kPlus in values])
-    
-    inlayDataSet = generateDataSet(parameter='kPlus', values=['%1.2e' % kPlus for kPlus in 10**numpy.linspace(0, 3, 100)])
-    viewer = DepositionViewer()
-    viewer.plot(dataset,
-                r'$k^+=%4.2f$ $\power{\metre}{3}\per\mole\cdot\second$',
-                parameter,
-                legend=3, lfs=8, subplot=True, filesuffix=filesuffix, replaceString='.00$', inlayDataSet=inlayDataSet)
 
-    # plotDeposition((1e7, 1.5e7, 2e7, 2.5e7, 3e7),
-    #                'tmp/base-kMinus-',
-    #                r'$k^-=%1.1f\times 10^{%i}$ $1\per\metre$',
-    #                'kMinus', filesuffix=filesuffix)
-
-    # plotDeposition((0.001, 0.005, 0.01, 0.02, 0.03, 0.04),
-    #                'tmp/base-deltaRef-',
-    #                r'$L=%1.3f$ $\metre$',
-    #                'deltaRef',
-    #                legend=2, 
-    #                loc='upper right', filesuffix=filesuffix)
-
-    # plotDeposition((0.005, 0.01, 0.02, 0.04),
-    #                'tmp/base-bulkSuppressor-',
-    #                r'$C_{\text{Supp}}^{\infty}=%1.3f$ $\mole\per\power{\metre}{3}$',
-    #                'bulkSuppressor',
-    #                maxSuppressor=0.04, filesuffix=filesuffix)
-
-    # plotDeposition((-0.200, -0.250, -0.300),
-    #                'tmp/base-appliedPotential-',
-    #                r'$E_{\text{Applied}}=%1.2f$ $\volt$',
-    #                'appliedPotential', filesuffix=filesuffix)
-
-    # plotDeposition(numpy.array((15e-6, 25e-6, 35e-6, 45e-6, 55e-6, 65e-6, 75e-6, 85e-6))[::-1],
-    #                'tmp/base-featureDepth-',
-    #                r'$h=%1.0f$ $\micro\metre$',
-    #                'featureDepth',
-    #                mulFactor=1000000,
-    #                legend=3,
-    #                filesuffix=filesuffix,
-    #                xticks=(-80, -60, -40, -20, 0),
-    #                colors = numpy.array(['b', 'g', 'r', 'c', 'm', 'y', 'k', '#663300'])[::-1])
-
-if __name__ == '__main__':
-    plot1()
