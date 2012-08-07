@@ -1,11 +1,9 @@
 import numpy as np
 import parameters
-from fipy import Grid1D, dump
+from fipy import Grid1D
 import pylab
 import matplotlib
 
-kMinus = 2.47707636e+07
-kPluses = 10**np.linspace(0, 3, 100)
 matplotlib.rcParams['lines.linewidth'] = 2
 matplotlib.rcParams['legend.fontsize'] = 11
 
@@ -23,18 +21,17 @@ def getX(featureDepth):
 
 
 
-def getPotentials(dataset, kPluses):
+def getPotentials(dataset):
     X, ID, dx = getX(dataset[0]['featureDepth'])
-    potentials = np.zeros(len(kPluses), 'd')
-    for i, kPlus in enumerate(kPluses):
+    potentials = np.zeros(len(dataset), 'd')
+    for i, kPlus in enumerate(dataset):
         potentials[i] = dataset[i]['potential'][ID]
 
     return potentials
 
-def plotkPlusVPotential(dataset, kPluses):
-    print [float(kPlus) for kPlus in kPluses]
-    print getPotentials(dataset, kPluses)
-    pylab.semilogx([float(kPlus) for kPlus in kPluses], getPotentials(dataset, kPluses), 'k', lw=1)
+def plotkPlusVPotential(dataset):
+    kPluses = [data['kPlus'] for data in dataset]
+    pylab.semilogx(kPluses, getPotentials(dataset), 'k', lw=1)
     pylab.semilogx((1, 1000), (0.25, 0.25), 'k--', lw=1)
     pylab.xlabel(r'$k^+$', fontsize=10, labelpad=-3)
     pylab.xticks((1, 10, 100, 1000), (r'$1$', r'$10$', r'$100$', r'$1000$'), fontsize=8)

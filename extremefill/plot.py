@@ -44,7 +44,7 @@ def me(n):
     m, e = s.split('e')
     return float(m), int(e)
 
-def plotDeposition(variables, dataset, label, figprefix, mulFactor=1, legend=1, loc='upper left', maxSuppressor=None, lfs=10, subplot=False, filesuffix='.png,', xticks=(-50, -40, -30, -20, -10, 0), replaceString=None, colors=None):
+def plotDeposition(dataset, label, parameter, mulFactor=1, legend=1, loc='upper left', maxSuppressor=None, lfs=10, subplot=False, filesuffix='.png,', xticks=(-50, -40, -30, -20, -10, 0), replaceString=None, colors=None, inlayDataSet=None):
 
     pylab.figure()
     figDeposition = pylab.subplot(221)
@@ -53,21 +53,21 @@ def plotDeposition(variables, dataset, label, figprefix, mulFactor=1, legend=1, 
     figCupric = pylab.subplot(224)
     maxFeatureDepth = 0
     print '**************'
-    print 'varying ' + figprefix
+    print 'varying ' + parameter
 
     xlabel = r'$z$ $\left(\micro\metre\right)$'
     scaleFactor = 1000000
 
     if colors is None:
-        colors = [None] * len(variables)
+        colors = [None] * len(dataset)
 
     if maxSuppressor is None:
         maxSuppressor = dataset[0]['bulkSuppressor']        
         print 'maxSuppressor',maxSuppressor
 
 
-    for variable, color, data in zip(variables, colors, dataset):
-        variable = float(variable)
+    for color, data in zip(colors, dataset):
+        variable = data[parameter]
         featureDepth = data['featureDepth']
         X, ID = getX(featureDepth, data)
         maxFeatureDepth = max(featureDepth, maxFeatureDepth)
@@ -105,7 +105,7 @@ def plotDeposition(variables, dataset, label, figprefix, mulFactor=1, legend=1, 
         pylab.plot(X * scaleFactor, cupric, **kwargs)
         
         print '------------'
-        print figprefix + ' value: ' + str(data[figprefix])
+        print parameter + ' value: ' + str(data[parameter])
         print 'voltage drop',-data['appliedPotential'] - potential[ID]
 
     ax = pylab.axes(figDeposition)
@@ -165,7 +165,7 @@ def plotDeposition(variables, dataset, label, figprefix, mulFactor=1, legend=1, 
         ax = pylab.axes(figDeposition)
         from plotkPlusVPotentialDrop import plotkPlusVPotential
         abg = pylab.axes((0.2, 0.7, 0.18, 0.18), frame_on=True, axisbg='y')
-        plotkPlusVPotential(dataset, variables)
+        plotkPlusVPotential(inlayDataSet)
 ##        pylab.rcParams['xtick.major.pad'] = val
         from matplotlib.patches import FancyArrowPatch
         abg.add_patch(FancyArrowPatch((25, 0.13), (13, -0.05), arrowstyle='<-', mutation_scale=20, lw=2, color='red', clip_on=False, alpha=0.7))
@@ -177,21 +177,21 @@ def plotDeposition(variables, dataset, label, figprefix, mulFactor=1, legend=1, 
         filesuffix = (filesuffix,)
 
     for fs in filesuffix:
-        pylab.savefig(figprefix + fs)
+        pylab.savefig(parameter + fs)
 
 
 def plot1(filesuffix='.png'):
 
     from generate import generateDataSet
     parameter = 'kPlus'
-    values = ('1e-2', '5e0', '2.5e1', '5e1', '1e2', '1e3')
-    dataset = generateDataSet(parameter=parameter, values=values)
-
-    plotDeposition(values,
-                   dataset,
+    values = (1e-2, 5e0, 2.5e1, 5e1, 1e2, 1e3)
+    dataset = generateDataSet(parameter=parameter, values=['%1.2e' % kPlus for kPlus in values])
+    
+    inlayDataSet = generateDataSet(parameter='kPlus', values=['%1.2e' % kPlus for kPlus in 10**numpy.linspace(0, 3, 100)])
+    plotDeposition(dataset,
                    r'$k^+=%4.2f$ $\power{\metre}{3}\per\mole\cdot\second$',
                    parameter,
-                   legend=3, lfs=8, subplot=True, filesuffix=filesuffix, replaceString='.00$')
+                   legend=3, lfs=8, subplot=True, filesuffix=filesuffix, replaceString='.00$', inlayDataSet=inlayDataSet)
 
     # plotDeposition((1e7, 1.5e7, 2e7, 2.5e7, 3e7),
     #                'tmp/base-kMinus-',
