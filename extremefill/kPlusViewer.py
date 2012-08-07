@@ -53,13 +53,6 @@ class KPlusViewer(DepositionViewer):
 
 
 
-    # plotDeposition((0.001, 0.005, 0.01, 0.02, 0.03, 0.04),
-    #                'tmp/base-deltaRef-',
-    #                r'$L=%1.3f$ $\metre$',
-    #                'deltaRef',
-    #                legend=2, 
-    #                loc='upper right', filesuffix=filesuffix)
-
     # plotDeposition((0.005, 0.01, 0.02, 0.04),
     #                'tmp/base-bulkSuppressor-',
     #                r'$C_{\text{Supp}}^{\infty}=%1.3f$ $\mole\per\power{\metre}{3}$',

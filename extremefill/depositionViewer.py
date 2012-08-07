@@ -58,7 +58,7 @@ class DepositionViewer(object):
         if ax.colNum == 0 and ax.rowNum == 0:
             self.legend =  pylab.legend(loc='upper left')
         
-    def plot(self, mulFactor=1, maxSuppressor=None, filesuffix='.png', xticks=(-50, -40, -30, -20, -10, 0), colors=None):        
+    def plot(self, mulFactor=1, filesuffix='.png', xticks=(-50, -40, -30, -20, -10, 0), colors=None):        
         
         pylab.figure()
         figDeposition = pylab.subplot(221)
@@ -75,8 +75,8 @@ class DepositionViewer(object):
         if colors is None:
             colors = [None] * len(self.dataset)
 
-        if maxSuppressor is None:
-            maxSuppressor = self.dataset[0]['bulkSuppressor']        
+        maxSuppressor = self._maxSuppressor()
+
 
         for color, data in zip(colors, self.dataset):
             variable = data[self.parameter]
@@ -185,4 +185,5 @@ class DepositionViewer(object):
     def replaceString(self, Label):
         return Label
 
-
+    def _maxSuppressor(self):
+        return self.dataset[0]['bulkSuppressor']        

@@ -174,7 +174,8 @@ def run(dt=.5e-7,
             'kPlus' : kPlus,
             'appliedPotential' : appliedPotential,
             'kMinus' : kMinus,
-            'deltaRef' : deltaRef}
+            'deltaRef' : deltaRef,
+            'bulkSuppressor' : bulkSuppressor}
 
 if __name__ == '__main__':
     import fipy.tests.doctestPlus
