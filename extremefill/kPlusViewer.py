@@ -52,10 +52,6 @@ class KPlusViewer(DepositionViewer):
 
 
 
-    # plotDeposition((1e7, 1.5e7, 2e7, 2.5e7, 3e7),
-    #                'tmp/base-kMinus-',
-    #                r'$k^-=%1.1f\times 10^{%i}$ $1\per\metre$',
-    #                'kMinus', filesuffix=filesuffix)
 
     # plotDeposition((0.001, 0.005, 0.01, 0.02, 0.03, 0.04),
     #                'tmp/base-deltaRef-',

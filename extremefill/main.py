@@ -173,7 +173,8 @@ def run(dt=.5e-7,
             'featureDepth' : featureDepth,
             'kPlus' : kPlus,
             'appliedPotential' : appliedPotential,
-            'kMinus' : kMinus}
+            'kMinus' : kMinus,
+            'deltaRef' : deltaRef}
 
 if __name__ == '__main__':
     import fipy.tests.doctestPlus
