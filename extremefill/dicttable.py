@@ -2,9 +2,6 @@ import tables
 import os
 import hashlib
 
-def getMD5Hash(textToHash=None):
-    return hashlib.md5(textToHash).hexdigest()
-
 class DictTable:
     """
     Designed to save a dictionary of arrays at each timestep in a simulation.
