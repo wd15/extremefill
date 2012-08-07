@@ -58,7 +58,7 @@ class DepositionViewer(object):
         if ax.colNum == 0 and ax.rowNum == 0:
             self.legend =  pylab.legend(loc='upper right')
         
-    def plot(self, mulFactor=1, filesuffix='.png', xticks=(-50, -40, -30, -20, -10, 0), colors=None):        
+    def plot(self, mulFactor=1, filesuffix='.png', colors=None):        
         
         pylab.figure()
         figDeposition = pylab.subplot(221)
@@ -72,13 +72,9 @@ class DepositionViewer(object):
         xlabel = r'$z$ $\left(\micro\metre\right)$'
         scaleFactor = 1000000
 
-        if colors is None:
-            colors = [None] * len(self.dataset)
-
         maxSuppressor = self._maxSuppressor()
 
-
-        for color, data in zip(colors, self.dataset):
+        for color, data in zip(self._colors(), self.dataset):
             variable = data[self.parameter]
             featureDepth = data['featureDepth']
             X, ID = self.getX(data)
@@ -91,15 +87,15 @@ class DepositionViewer(object):
             cbar = cupric / data['bulkCupric']
             current = cbar * I0 * self.E(-potential, data)
             depositionRate = data['omega'] * current / data['charge'] / data['faradaysConstant']
-
+            
             if 'times' in self.label:
                 def me(n):
                     s = '%1.1e' % n
                     m, e = s.split('e')
                     return float(m), int(e)
-                Label = self.label % me(variable * mulFactor)
+                Label = self.label % me(self.scale(variable))
             else:
-                Label = self.label % (variable * mulFactor)
+                Label = self.label % (self.scale(variable))
                 Label = self.replaceString(Label)
 
             kwargs = {'label' : Label}
@@ -122,6 +118,7 @@ class DepositionViewer(object):
             print self.parameter + ' value: ' + str(data[self.parameter])
             print 'voltage drop',-data['appliedPotential'] - potential[ID]
 
+        xticks = self._xticks()
         ax = pylab.axes(figDeposition)
         self._legend(ax)
         pylab.ylabel(r'$v$ $\left(\metre\per\second\right)$', rotation='vertical', fontsize=14)
@@ -187,3 +184,12 @@ class DepositionViewer(object):
 
     def _maxSuppressor(self):
         return self.dataset[0]['bulkSuppressor']        
+
+    def scale(self, variable):
+        return variable
+
+    def _xticks(self):
+        return (-50, -40, -30, -20, -10, 0)
+
+    def _colors(self):
+        return [None] * len(self.dataset)

@@ -50,15 +50,5 @@ class KPlusViewer(DepositionViewer):
     def replaceString(self, Label):
         return Label.replace('.00$', '$')
 
-    # plotDeposition(numpy.array((15e-6, 25e-6, 35e-6, 45e-6, 55e-6, 65e-6, 75e-6, 85e-6))[::-1],
-    #                'tmp/base-featureDepth-',
-    #                r'$h=%1.0f$ $\micro\metre$',
-    #                'featureDepth',
-    #                mulFactor=1000000,
-    #                legend=3,
-    #                filesuffix=filesuffix,
-    #                xticks=(-80, -60, -40, -20, 0),
-    #                colors = numpy.array(['b', 'g', 'r', 'c', 'm', 'y', 'k', '#663300'])[::-1])
-
 if __name__ == '__main__':
     KPlusViewer().plot()
