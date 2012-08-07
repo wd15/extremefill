@@ -10,9 +10,5 @@ class BulkSuppressorViewer(DepositionViewer):
     def _maxSuppressor(self):
         return 0.04
 
-    def _legend(self, ax):
-        if ax.colNum == 0 and ax.rowNum == 0:
-            self.legend =  pylab.legend(loc='upper right')
-
 if __name__ == '__main__':
     BulkSuppressorViewer().plot()

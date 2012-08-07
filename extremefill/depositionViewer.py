@@ -56,7 +56,7 @@ class DepositionViewer(object):
 
     def _legend(self, ax):
         if ax.colNum == 0 and ax.rowNum == 0:
-            self.legend =  pylab.legend(loc='upper left')
+            self.legend =  pylab.legend(loc='upper right')
         
     def plot(self, mulFactor=1, filesuffix='.png', xticks=(-50, -40, -30, -20, -10, 0), colors=None):        
         

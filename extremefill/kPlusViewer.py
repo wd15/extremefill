@@ -50,20 +50,6 @@ class KPlusViewer(DepositionViewer):
     def replaceString(self, Label):
         return Label.replace('.00$', '$')
 
-
-
-
-    # plotDeposition((0.005, 0.01, 0.02, 0.04),
-    #                'tmp/base-bulkSuppressor-',
-    #                r'$C_{\text{Supp}}^{\infty}=%1.3f$ $\mole\per\power{\metre}{3}$',
-    #                'bulkSuppressor',
-    #                maxSuppressor=0.04, filesuffix=filesuffix)
-
-    # plotDeposition((-0.200, -0.250, -0.300),
-    #                'tmp/base-appliedPotential-',
-    #                r'$E_{\text{Applied}}=%1.2f$ $\volt$',
-    #                'appliedPotential', filesuffix=filesuffix)
-
     # plotDeposition(numpy.array((15e-6, 25e-6, 35e-6, 45e-6, 55e-6, 65e-6, 75e-6, 85e-6))[::-1],
     #                'tmp/base-featureDepth-',
     #                r'$h=%1.0f$ $\micro\metre$',
