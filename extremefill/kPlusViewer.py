@@ -1,21 +1,18 @@
 ## Need to import PyTables before importing fipy for some reason.
-import tables
-
 import pylab
 import numpy
 
 from depositionViewer import DepositionViewer
-from generate import generateDataSet
 
 class KPlusViewer(DepositionViewer):
 
     def __init__(self):
         parameter = 'kPlus'
         super(KPlusViewer, self).__init__(parameter, (1e-2, 5e0, 2.5e1, 5e1, 1e2, 1e3), r'$k^+=%4.2f$ $\power{\metre}{3}\per\mole\cdot\second$', lfs=8)
-        self.inlayDataset = generateDataSet(parameter=parameter, values=['%1.2e' % kPlus for kPlus in 10**numpy.linspace(0, 3, 100)])
+        self.inlayDataset = self.generateDataSet(parameter=parameter, values=['%1.2e' % kPlus for kPlus in 10**numpy.linspace(0, 3, 100)])
 
-    def plot(self):
-        super(KPlusViewer, self).plot(filesuffix='.png', replaceString='.00$') 
+    def plot(self, filesuffix='.png'):
+        super(KPlusViewer, self).plot(filesuffix=filesuffix) 
 
     def _legend(self, ax):
         if ax.colNum == 0 and ax.rowNum == 1:
@@ -49,7 +46,11 @@ class KPlusViewer(DepositionViewer):
         pylab.ylim(0.04, 0.27)
         pylab.xlim(1, 1000)
         pylab.ylabel(r'$\eta$', fontsize=10, rotation='horizontal', labelpad=-8)
-    ##    pylab.title(r'(e)', fontsize=10)
+
+    def replaceString(self, Label):
+        return Label.replace('.00$', '$')
+
+
 
     # plotDeposition((1e7, 1.5e7, 2e7, 2.5e7, 3e7),
     #                'tmp/base-kMinus-',

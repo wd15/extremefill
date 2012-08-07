@@ -5,20 +5,38 @@ import pylab
 from fipy import Grid1D
 import numpy
 import matplotlib
-from generate import generateDataSet
 
 matplotlib.rcParams['lines.linewidth'] = 2
 matplotlib.rcParams['legend.fontsize'] = 10
 matplotlib.rcParams['legend.labelspacing'] = 0.1
 matplotlib.rcParams['figure.subplot.wspace'] = 0.3
 matplotlib.rcParams['figure.subplot.hspace'] = 0.3
+from dicttable import DictTable
+from main import run
 
 class DepositionViewer(object):
     def __init__(self, parameter, values, label, lfs=10):
         self.parameter = parameter
-        self.dataset = generateDataSet(parameter=self.parameter, values=['%1.2e' % kPlus for kPlus in values])
+        self.dataset = self.generateDataSet(parameter=self.parameter, values=['%1.2e' % kPlus for kPlus in values])
         self.label = label
         self.lfs = 8
+
+    def generateDataSet(self, parameter=None, values=None, datafile='data.h5'):
+
+        h5data = DictTable(datafile)
+        dataset = []
+        for value in values:
+            key = parameter + value.replace('-', 'm').replace('+', 'p') ## replace due to PyTables natural naming scheme
+            if h5data.haskey(key):
+                dataset.append(h5data[key])
+            else:
+                print 'generating data for ' + parameter + ' = ' + value
+                print
+                data = run(totalSteps=10, **{parameter : float(value)})
+                h5data[key] = data
+                dataset.append(data)
+
+        return dataset
 
     def getX(self, data):
         L = data['delta'] + data['featureDepth']
@@ -40,7 +58,7 @@ class DepositionViewer(object):
         if ax.colNum == 0 and ax.rowNum == 0:
             self.legend =  pylab.legend(loc='upper left')
         
-    def plot(self, mulFactor=1, maxSuppressor=None, filesuffix='.png,', xticks=(-50, -40, -30, -20, -10, 0), replaceString=None, colors=None):        
+    def plot(self, mulFactor=1, maxSuppressor=None, filesuffix='.png', xticks=(-50, -40, -30, -20, -10, 0), colors=None):        
         
         pylab.figure()
         figDeposition = pylab.subplot(221)
@@ -82,8 +100,7 @@ class DepositionViewer(object):
                 Label = self.label % me(variable * mulFactor)
             else:
                 Label = self.label % (variable * mulFactor)
-                if replaceString is not None:
-                    Label = Label.replace(replaceString, '$')
+                Label = self.replaceString(Label)
 
             kwargs = {'label' : Label}
             if color is not None:
@@ -159,10 +176,13 @@ class DepositionViewer(object):
             filesuffix = (filesuffix,)
 
         for fs in filesuffix:
+            print self.parameter  + fs
             pylab.savefig(self.parameter + fs)
 
     def subplot(self, fig):
         pass
 
+    def replaceString(self, Label):
+        return Label
 
 
