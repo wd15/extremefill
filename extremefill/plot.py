@@ -5,6 +5,7 @@ import pylab
 from fipy import Grid1D
 import numpy
 import matplotlib
+from generate import generateDataSet
 
 #from matplotlib import rc
 
@@ -23,161 +24,163 @@ matplotlib.rcParams['legend.labelspacing'] = 0.1
 matplotlib.rcParams['figure.subplot.wspace'] = 0.3
 matplotlib.rcParams['figure.subplot.hspace'] = 0.3
 
-def getX(featureDepth, data):
-    L = data['delta'] + data['featureDepth']
-    N = 1000
-    dx = L / N 
-    mesh = Grid1D(nx=N, dx=dx) - [[featureDepth]]
-    x = 0
-    ID = numpy.argmin(abs(mesh.x - x))
-    if mesh.x[ID] < x:
-        ID = ID + 1
-    X = mesh.x[:ID + 1].value
-    return X, ID
+class DepositionViewer(object):
+    def __init__(self, parameter, values, label):
+        self.parameter = parameter
+        self.dataset = generateDataSet(parameter=self.parameter, values=['%1.2e' % kPlus for kPlus in values])
+        self.label = label
 
-def E(potential, data):
-    return numpy.exp(-data['alpha'] * data['Fbar'] * potential) \
-        - numpy.exp((2 - data['alpha']) * data['Fbar'] * potential)
+    def getX(self, featureDepth, data):
+        L = data['delta'] + data['featureDepth']
+        N = 1000
+        dx = L / N 
+        mesh = Grid1D(nx=N, dx=dx) - [[featureDepth]]
+        x = 0
+        ID = numpy.argmin(abs(mesh.x - x))
+        if mesh.x[ID] < x:
+            ID = ID + 1
+        X = mesh.x[:ID + 1].value
+        return X, ID
 
-def me(n):
-    s = '%1.1e' % n
-    m, e = s.split('e')
-    return float(m), int(e)
+    def E(self, potential, data):
+        return numpy.exp(-data['alpha'] * data['Fbar'] * potential) \
+            - numpy.exp((2 - data['alpha']) * data['Fbar'] * potential)
 
-def plotDeposition(dataset, label, parameter, mulFactor=1, legend=1, loc='upper left', maxSuppressor=None, lfs=10, subplot=False, filesuffix='.png,', xticks=(-50, -40, -30, -20, -10, 0), replaceString=None, colors=None, inlayDataSet=None):
-
-    pylab.figure()
-    figDeposition = pylab.subplot(221)
-    figTheta = pylab.subplot(222)
-    figSuppressor = pylab.subplot(223)
-    figCupric = pylab.subplot(224)
-    maxFeatureDepth = 0
-    print '**************'
-    print 'varying ' + parameter
-
-    xlabel = r'$z$ $\left(\micro\metre\right)$'
-    scaleFactor = 1000000
-
-    if colors is None:
-        colors = [None] * len(dataset)
-
-    if maxSuppressor is None:
-        maxSuppressor = dataset[0]['bulkSuppressor']        
-        print 'maxSuppressor',maxSuppressor
-
-
-    for color, data in zip(colors, dataset):
-        variable = data[parameter]
-        featureDepth = data['featureDepth']
-        X, ID = getX(featureDepth, data)
-        maxFeatureDepth = max(featureDepth, maxFeatureDepth)
-        theta = data['theta'][:ID + 1]
-        potential = data['potential'][:ID + 1]
-        cupric = data['cupric'][:ID + 1]
-        suppressor = data['suppressor'][:ID + 1]
-        I0 = data['i0'] + data['i1'] * theta
-        cbar = cupric / data['bulkCupric']
-        current = cbar * I0 * E(-potential, data)
-        depositionRate = data['omega'] * current / data['charge'] / data['faradaysConstant']
-
-        if 'times' in label:
-            Label = label % me(variable * mulFactor)
-        else:
-            Label = label % (variable * mulFactor)
-            if replaceString is not None:
-                Label = Label.replace(replaceString, '$')
-
+    def plot(self, mulFactor=1, legend=1, loc='upper left', maxSuppressor=None, lfs=10, subplot=False, filesuffix='.png,', xticks=(-50, -40, -30, -20, -10, 0), replaceString=None, colors=None, inlayDataSet=None):        
         
-        kwargs = {'label' : label}
-        if color is not None:
-            kwargs['color'] = color
+        pylab.figure()
+        figDeposition = pylab.subplot(221)
+        figTheta = pylab.subplot(222)
+        figSuppressor = pylab.subplot(223)
+        figCupric = pylab.subplot(224)
+        maxFeatureDepth = 0
+        print '**************'
+        print 'varying ' + self.parameter
 
-        pylab.axes(figDeposition)        
-        pylab.plot(X * scaleFactor, depositionRate, **kwargs)
+        xlabel = r'$z$ $\left(\micro\metre\right)$'
+        scaleFactor = 1000000
+
+        if colors is None:
+            colors = [None] * len(self.dataset)
+
+        if maxSuppressor is None:
+            maxSuppressor = self.dataset[0]['bulkSuppressor']        
+
+        for color, data in zip(colors, self.dataset):
+            variable = data[self.parameter]
+            featureDepth = data['featureDepth']
+            X, ID = self.getX(featureDepth, data)
+            maxFeatureDepth = max(featureDepth, maxFeatureDepth)
+            theta = data['theta'][:ID + 1]
+            potential = data['potential'][:ID + 1]
+            cupric = data['cupric'][:ID + 1]
+            suppressor = data['suppressor'][:ID + 1]
+            I0 = data['i0'] + data['i1'] * theta
+            cbar = cupric / data['bulkCupric']
+            current = cbar * I0 * self.E(-potential, data)
+            depositionRate = data['omega'] * current / data['charge'] / data['faradaysConstant']
+
+            if 'times' in self.label:
+                def me(n):
+                    s = '%1.1e' % n
+                    m, e = s.split('e')
+                    return float(m), int(e)
+                Label = self.label % me(variable * mulFactor)
+            else:
+                Label = self.label % (variable * mulFactor)
+                if replaceString is not None:
+                    Label = Label.replace(replaceString, '$')
+
+            kwargs = {'label' : self.label}
+            if color is not None:
+                kwargs['color'] = color
+
+            pylab.axes(figDeposition)        
+            pylab.plot(X * scaleFactor, depositionRate, **kwargs)
+
+            pylab.axes(figTheta)
+            pylab.plot(X * scaleFactor, theta, **kwargs)
+
+            pylab.axes(figSuppressor)
+            pylab.plot(X * scaleFactor, suppressor, **kwargs)
+
+            pylab.axes(figCupric)
+            pylab.plot(X * scaleFactor, cupric, **kwargs)
+
+            print '------------'
+            print self.parameter + ' value: ' + str(data[self.parameter])
+            print 'voltage drop',-data['appliedPotential'] - potential[ID]
+
+        ax = pylab.axes(figDeposition)
+        if legend == 1:
+            l = pylab.legend()
+        pylab.ylabel(r'$v$ $\left(\metre\per\second\right)$', rotation='vertical', fontsize=14)
+        pylab.xlim(xmin=-maxFeatureDepth * scaleFactor)
+        pylab.xlim(xmax=0)
+        pylab.ylim(ymax=8e-9)
+        pylab.ylim(ymin=0.0)
+        pylab.xticks(xticks)
+        pylab.title('(a)')
 
         pylab.axes(figTheta)
-        pylab.plot(X * scaleFactor, theta, **kwargs)
+        if legend == 2:
+            l = pylab.legend(loc=loc)
+        pylab.ylabel(r'$\theta$', rotation='vertical')
+        pylab.xlim(xmin=-maxFeatureDepth * scaleFactor)
+        pylab.xlim(xmax=0)
+        pylab.ylim(ymax=1* 1.05)
+        pylab.ylim(ymin=0)
+        pylab.xticks(xticks)
+        pylab.title('(b)')
 
         pylab.axes(figSuppressor)
-        pylab.plot(X * scaleFactor, suppressor, **kwargs)
+        if legend == 3:
+            l = pylab.legend(loc=loc)
+        pylab.xlabel(xlabel, fontsize=14)
+        pylab.ylabel(r'$C_{\text{Supp}}$ $\left(\mole\per\power{\metre}{3}\right)$', rotation='vertical', fontsize=14)
+        pylab.xlim(xmin=-maxFeatureDepth * scaleFactor)
+        pylab.xlim(xmax=0)
+        pylab.ylim(ymin=0)
+        pylab.ylim(ymax=maxSuppressor* 1.05)
+        pylab.xticks(xticks)
+        pylab.title('(c)')
 
         pylab.axes(figCupric)
-        pylab.plot(X * scaleFactor, cupric, **kwargs)
-        
-        print '------------'
-        print parameter + ' value: ' + str(data[parameter])
-        print 'voltage drop',-data['appliedPotential'] - potential[ID]
+        if legend == 4:
+            l = pylab.legend(loc=loc)
+        pylab.xlabel(xlabel, fontsize=14)
+        pylab.ylabel(r'$C_{\text{Cu}}$ $\left(\mole\per\power{\metre}{3}\right)$', rotation='vertical', fontsize=14, labelpad=-3)
+        pylab.ylim(ymax=data['bulkCupric'] * 1.05)
+        pylab.ylim(ymin=0)
+        pylab.xlim(xmin=-maxFeatureDepth * scaleFactor)
+        pylab.xlim(xmax=0)
+        pylab.xticks(xticks)
+        pylab.title('(d)')
 
-    ax = pylab.axes(figDeposition)
-    if legend == 1:
-        l = pylab.legend()
-    pylab.ylabel(r'$v$ $\left(\metre\per\second\right)$', rotation='vertical', fontsize=14)
-    pylab.xlim(xmin=-maxFeatureDepth * scaleFactor)
-    pylab.xlim(xmax=0)
-    pylab.ylim(ymax=8e-9)
-    pylab.ylim(ymin=0.0)
-    pylab.xticks(xticks)
-    pylab.title('(a)')
+        l.labelspacing = 0
+        l.columnspacing = 0.1
+        for t in l.texts:
+            t.set_size(lfs)
 
-    pylab.axes(figTheta)
-    if legend == 2:
-        l = pylab.legend(loc=loc)
-    pylab.ylabel(r'$\theta$', rotation='vertical')
-    pylab.xlim(xmin=-maxFeatureDepth * scaleFactor)
-    pylab.xlim(xmax=0)
-    pylab.ylim(ymax=1* 1.05)
-    pylab.ylim(ymin=0)
-    pylab.xticks(xticks)
-    pylab.title('(b)')
-    
-    pylab.axes(figSuppressor)
-    if legend == 3:
-        l = pylab.legend(loc=loc)
-    pylab.xlabel(xlabel, fontsize=14)
-    pylab.ylabel(r'$C_{\text{Supp}}$ $\left(\mole\per\power{\metre}{3}\right)$', rotation='vertical', fontsize=14)
-    pylab.xlim(xmin=-maxFeatureDepth * scaleFactor)
-    pylab.xlim(xmax=0)
-    pylab.ylim(ymin=0)
-    pylab.ylim(ymax=maxSuppressor* 1.05)
-    pylab.xticks(xticks)
-    pylab.title('(c)')
+        if subplot is True:
+    ##       val = pylab.rcParams['xtick.major.pad']
+    ##       pylab.rcParams['xtick.major.pad']='2'
+            ax = pylab.axes(figDeposition)
+            from plotkPlusVPotentialDrop import plotkPlusVPotential
+            abg = pylab.axes((0.2, 0.7, 0.18, 0.18), frame_on=True, axisbg='y')
+            plotkPlusVPotential(inlayDataSet)
+    ##        pylab.rcParams['xtick.major.pad'] = val
+            from matplotlib.patches import FancyArrowPatch
+            abg.add_patch(FancyArrowPatch((25, 0.13), (13, -0.05), arrowstyle='<-', mutation_scale=20, lw=2, color='red', clip_on=False, alpha=0.7))
+            abg.add_patch(FancyArrowPatch((5, 0.07), (5, -0.085), arrowstyle='<-', mutation_scale=20, lw=2, color='green', clip_on=False, alpha=0.7))
+            pylab.text(1.5, 0.21, r'(e)', fontsize=12)
+    ##        pylab.plot((25, 1), (0.15, -0.05), 'r', clip_on=False, alpha=0.5)
 
-    pylab.axes(figCupric)
-    if legend == 4:
-        l = pylab.legend(loc=loc)
-    pylab.xlabel(xlabel, fontsize=14)
-    pylab.ylabel(r'$C_{\text{Cu}}$ $\left(\mole\per\power{\metre}{3}\right)$', rotation='vertical', fontsize=14, labelpad=-3)
-    pylab.ylim(ymax=data['bulkCupric'] * 1.05)
-    pylab.ylim(ymin=0)
-    pylab.xlim(xmin=-maxFeatureDepth * scaleFactor)
-    pylab.xlim(xmax=0)
-    pylab.xticks(xticks)
-    pylab.title('(d)')
+        if type(filesuffix) is str:
+            filesuffix = (filesuffix,)
 
-    l.labelspacing = 0
-    l.columnspacing = 0.1
-    for t in l.texts:
-        t.set_size(lfs)
-
-    if subplot is True:
-##       val = pylab.rcParams['xtick.major.pad']
-##       pylab.rcParams['xtick.major.pad']='2'
-        ax = pylab.axes(figDeposition)
-        from plotkPlusVPotentialDrop import plotkPlusVPotential
-        abg = pylab.axes((0.2, 0.7, 0.18, 0.18), frame_on=True, axisbg='y')
-        plotkPlusVPotential(inlayDataSet)
-##        pylab.rcParams['xtick.major.pad'] = val
-        from matplotlib.patches import FancyArrowPatch
-        abg.add_patch(FancyArrowPatch((25, 0.13), (13, -0.05), arrowstyle='<-', mutation_scale=20, lw=2, color='red', clip_on=False, alpha=0.7))
-        abg.add_patch(FancyArrowPatch((5, 0.07), (5, -0.085), arrowstyle='<-', mutation_scale=20, lw=2, color='green', clip_on=False, alpha=0.7))
-        pylab.text(1.5, 0.21, r'(e)', fontsize=12)
-##        pylab.plot((25, 1), (0.15, -0.05), 'r', clip_on=False, alpha=0.5)
-
-    if type(filesuffix) is str:
-        filesuffix = (filesuffix,)
-
-    for fs in filesuffix:
-        pylab.savefig(parameter + fs)
+        for fs in filesuffix:
+            pylab.savefig(self.parameter + fs)
 
 
 def plot1(filesuffix='.png'):
@@ -188,10 +191,11 @@ def plot1(filesuffix='.png'):
     dataset = generateDataSet(parameter=parameter, values=['%1.2e' % kPlus for kPlus in values])
     
     inlayDataSet = generateDataSet(parameter='kPlus', values=['%1.2e' % kPlus for kPlus in 10**numpy.linspace(0, 3, 100)])
-    plotDeposition(dataset,
-                   r'$k^+=%4.2f$ $\power{\metre}{3}\per\mole\cdot\second$',
-                   parameter,
-                   legend=3, lfs=8, subplot=True, filesuffix=filesuffix, replaceString='.00$', inlayDataSet=inlayDataSet)
+    viewer = DepositionViewer()
+    viewer.plot(dataset,
+                r'$k^+=%4.2f$ $\power{\metre}{3}\per\mole\cdot\second$',
+                parameter,
+                legend=3, lfs=8, subplot=True, filesuffix=filesuffix, replaceString='.00$', inlayDataSet=inlayDataSet)
 
     # plotDeposition((1e7, 1.5e7, 2e7, 2.5e7, 3e7),
     #                'tmp/base-kMinus-',
