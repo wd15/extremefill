@@ -1,4 +1,4 @@
 from setuptools import setup, find_packages
-setup(name='electrical',
+setup(name='extremefill',
       packages=find_packages()
       )

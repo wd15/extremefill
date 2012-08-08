@@ -4,7 +4,7 @@ import numpy
 
 from contourViewer import ContourViewer
 
-class KPlusVKMinusViewer(ContourViewer):
+class KPlusVkMinusViewer(ContourViewer):
     fontsize=16
 
     def plot(self, filesuffix=('.png',)):
@@ -41,5 +41,5 @@ class KPlusVKMinusViewer(ContourViewer):
             pylab.savefig('kPlusVkMinus' + fs)
 
 if __name__ == '__main__':
-    KPlusVKMinusViewer().plot()
+    KPlusVkMinusViewer().plot()
 

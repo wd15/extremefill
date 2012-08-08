@@ -4,18 +4,6 @@ import parameters
 import numpy
 
 import matplotlib
-#from matplotlib import rc
-
-##rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
-## for Palatino and other serif fonts use:
-#rc('font',**{'family':'serif','serif':['Palatino']))
-##rc('text', usetex=True)
-
-matplotlib.rcParams['lines.linewidth'] = 2
-#font = {'family' : 'normal',
-#        'weight' : 'normal',
-#        'size'   : 12}
-#matplotlib.rc('font', **font)
 fontsize=16
 matplotlib.rcParams['legend.fontsize'] = 11
 matplotlib.rcParams['xtick.labelsize'] = fontsize
