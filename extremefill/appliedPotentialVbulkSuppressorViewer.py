@@ -1,7 +1,7 @@
 import pylab
 import numpy
 
-from contourViewer import ContourViewer
+from extremefill.contourViewer import ContourViewer
 import matplotlib
 fontsize=16
 matplotlib.rcParams['legend.fontsize'] = 11

@@ -1,5 +1,5 @@
 import pylab
-from viewer import Viewer
+from extremefill.viewer import Viewer
 
 class ContourViewer(Viewer):
     def V(self, data):

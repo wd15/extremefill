@@ -19,15 +19,15 @@ viewers = (None,
            BulkSuppressorViewer,
            AppliedPotentialVbulkSuppressorViewer)
 
-def generateFigures(filesuffix=('.png',)):
+def generateFigures(filesuffix=('.png',), datafile='data.h5'):
     for Viewer in viewers:
         if Viewer is not None:
-            Viewer().plot(filesuffix=filesuffix)
+            Viewer(datafile=datafile).plot(filesuffix=filesuffix)
 
-def generateFigure(number, filesuffix=('.png',)):
+def generateFigure(number, filesuffix=('.png',), datafile='data.h5'):
     Viewer = viewers[number]
     if Viewer is not None:
-        Viewer().plot(filesuffix=filesuffix)
+        Viewer(datafile=datafile)).plot(filesuffix=filesuffix)
            
            
 

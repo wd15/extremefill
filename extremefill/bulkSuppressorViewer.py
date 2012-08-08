@@ -1,11 +1,9 @@
-## Need to import PyTables before importing fipy for some reason.
-from depositionViewer import DepositionViewer
-import pylab
+from extremefill.depositionViewer import DepositionViewer
 
 class BulkSuppressorViewer(DepositionViewer):
 
-    def __init__(self):
-        super(BulkSuppressorViewer, self).__init__('bulkSuppressor', (0.005, 0.01, 0.02, 0.04), r'$C_{\text{Supp}}^{\infty}=%1.3f$ $\mole\per\power{\metre}{3}$')
+    def __init__(self, datafile='data.h5'):
+        super(BulkSuppressorViewer, self).__init__('bulkSuppressor', (0.005, 0.01, 0.02, 0.04), r'$C_{\text{Supp}}^{\infty}=%1.3f$ $\mole\per\power{\metre}{3}$', datafile=datafile)
 
     def _maxSuppressor(self):
         return 0.04

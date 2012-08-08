@@ -4,12 +4,16 @@ import tables
 from fipy import Grid1D
 import numpy
 
-from dicttable import DictTable
-from main import run
+from extremefill.dicttable import DictTable
+from extremefill.main import run
 
 class Viewer(object):
-    def generateData(self, parameters, datafile='data.h5'):
-        h5data = DictTable(datafile)
+    def __init__(self, datafile='data.h5'):
+        self.datafile = datafile
+
+
+    def generateData(self, parameters):
+        h5data = DictTable(self.datafile)
         h5key = ''
         for key in parameters.keys():
             h5key += key + ('%1.2e' % parameters[key]).replace('-', 'm').replace('+', 'p') ## replace due to PyTables natural naming scheme

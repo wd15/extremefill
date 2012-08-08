@@ -2,13 +2,13 @@
 import pylab
 import numpy
 
-from depositionViewer import DepositionViewer
+from extremefill.depositionViewer import DepositionViewer
 
 class KPlusViewer(DepositionViewer):
 
-    def __init__(self):
+    def __init__(self, datafile='data.h5'):
         parameter = 'kPlus'
-        super(KPlusViewer, self).__init__(parameter, (1e-2, 5e0, 2.5e1, 5e1, 1e2, 1e3), r'$k^+=%4.2f$ $\power{\metre}{3}\per\mole\cdot\second$', lfs=8)
+        super(KPlusViewer, self).__init__(parameter, (1e-2, 5e0, 2.5e1, 5e1, 1e2, 1e3), r'$k^+=%4.2f$ $\power{\metre}{3}\per\mole\cdot\second$', lfs=8, datafile=datafile)
         self.inlayDataset = []
         for value in 10**numpy.linspace(0, 3, 100):
             self.inlayDataset.append(self.generateData({parameter : value}))

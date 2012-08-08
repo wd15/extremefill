@@ -2,12 +2,12 @@
 import pylab
 import numpy
 
-from depositionViewer import DepositionViewer
+from extremefill.depositionViewer import DepositionViewer
 
 class FeatureDepthViewer(DepositionViewer):
 
-    def __init__(self):
-        super(FeatureDepthViewer, self).__init__('featureDepth', numpy.array((15e-6, 25e-6, 35e-6, 45e-6, 55e-6, 65e-6, 75e-6, 85e-6))[::-1], r'$h=%1.0f$ $\micro\metre$')
+    def __init__(self, datafile='data.h5'):
+        super(FeatureDepthViewer, self).__init__('featureDepth', numpy.array((15e-6, 25e-6, 35e-6, 45e-6, 55e-6, 65e-6, 75e-6, 85e-6))[::-1], r'$h=%1.0f$ $\micro\metre$', datafile=datafile)
 
     def _legend(self, ax):
         if ax.colNum == 0 and ax.rowNum == 1:

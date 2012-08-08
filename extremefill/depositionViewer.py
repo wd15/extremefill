@@ -6,10 +6,11 @@ matplotlib.rcParams['legend.fontsize'] = 10
 matplotlib.rcParams['legend.labelspacing'] = 0.1
 matplotlib.rcParams['figure.subplot.wspace'] = 0.3
 matplotlib.rcParams['figure.subplot.hspace'] = 0.3
-from viewer import Viewer
+from extremefill.viewer import Viewer
 
 class DepositionViewer(Viewer):
-    def __init__(self, parameter, values, label, lfs=10):
+    def __init__(self, parameter, values, label, lfs=10, datafile='data.h5'):
+        super(DepositionViewer, self).__init__(datafile=datafile)
         self.parameter = parameter
         self.dataset = []
         for value in values:

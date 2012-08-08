@@ -2,7 +2,7 @@ import pylab
 import numpy
 
 
-from contourViewer import ContourViewer
+from extremefill.contourViewer import ContourViewer
 
 class KPlusVkMinusViewer(ContourViewer):
     fontsize=16
