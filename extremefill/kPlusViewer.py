@@ -9,7 +9,9 @@ class KPlusViewer(DepositionViewer):
     def __init__(self):
         parameter = 'kPlus'
         super(KPlusViewer, self).__init__(parameter, (1e-2, 5e0, 2.5e1, 5e1, 1e2, 1e3), r'$k^+=%4.2f$ $\power{\metre}{3}\per\mole\cdot\second$', lfs=8)
-        self.inlayDataset = self.generateDataSet(parameter=parameter, values=['%1.2e' % kPlus for kPlus in 10**numpy.linspace(0, 3, 100)])
+        self.inlayDataset = []
+        for value in 10**numpy.linspace(0, 3, 100):
+            self.inlayDataset.append(self.generateData({parameter : value}))
 
     def plot(self, filesuffix='.png'):
         super(KPlusViewer, self).plot(filesuffix=filesuffix) 
@@ -19,17 +21,16 @@ class KPlusViewer(DepositionViewer):
             self.legend =  pylab.legend(loc='upper left')
 
     def subplot(self, fig):
-        ax = pylab.axes(fig)
-        from plotkPlusVPotentialDrop import plotkPlusVPotential
+        pylab.axes(fig)
         abg = pylab.axes((0.2, 0.7, 0.18, 0.18), frame_on=True, axisbg='y')
-        plotkPlusVPotential(self.inlayDataset)
+        self.plotkPlusVPotential()
         from matplotlib.patches import FancyArrowPatch
         abg.add_patch(FancyArrowPatch((25, 0.13), (13, -0.05), arrowstyle='<-', mutation_scale=20, lw=2, color='red', clip_on=False, alpha=0.7))
         abg.add_patch(FancyArrowPatch((5, 0.07), (5, -0.085), arrowstyle='<-', mutation_scale=20, lw=2, color='green', clip_on=False, alpha=0.7))
         pylab.text(1.5, 0.21, r'(e)', fontsize=12)
 
     def getPotentials(self):
-        X, ID = self.getX(self.inlayDataset[0])
+        X, ID, dx = self.getX(self.inlayDataset[0])
         potentials = numpy.zeros(len(self.inlayDataset), 'd')
         for i, kPlus in enumerate(self.inlayDataset):
             potentials[i] = self.inlayDataset[i]['potential'][ID]

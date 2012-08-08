@@ -1,58 +1,21 @@
 ## Need to import PyTables before importing fipy for some reason.
-import tables
-
 import pylab
-from fipy import Grid1D
-import numpy
 import matplotlib
-
 matplotlib.rcParams['lines.linewidth'] = 2
 matplotlib.rcParams['legend.fontsize'] = 10
 matplotlib.rcParams['legend.labelspacing'] = 0.1
 matplotlib.rcParams['figure.subplot.wspace'] = 0.3
 matplotlib.rcParams['figure.subplot.hspace'] = 0.3
-from dicttable import DictTable
-from main import run
+from viewer import Viewer
 
-class DepositionViewer(object):
+class DepositionViewer(Viewer):
     def __init__(self, parameter, values, label, lfs=10):
         self.parameter = parameter
-        self.dataset = self.generateDataSet(parameter=self.parameter, values=['%1.2e' % kPlus for kPlus in values])
-        self.label = label
-        self.lfs = 8
-
-    def generateDataSet(self, parameter=None, values=None, datafile='data.h5'):
-
-        h5data = DictTable(datafile)
-        dataset = []
+        self.dataset = []
         for value in values:
-            key = parameter + value.replace('-', 'm').replace('+', 'p') ## replace due to PyTables natural naming scheme
-            if h5data.haskey(key):
-                dataset.append(h5data[key])
-            else:
-                print 'generating data for ' + parameter + ' = ' + value
-                print
-                data = run(totalSteps=10, **{parameter : float(value)})
-                h5data[key] = data
-                dataset.append(data)
-
-        return dataset
-
-    def getX(self, data):
-        L = data['delta'] + data['featureDepth']
-        N = 1000
-        dx = L / N 
-        mesh = Grid1D(nx=N, dx=dx) - [[data['featureDepth']]]
-        x = 0
-        ID = numpy.argmin(abs(mesh.x - x))
-        if mesh.x[ID] < x:
-            ID = ID + 1
-        X = mesh.x[:ID + 1].value
-        return X, ID
-
-    def E(self, potential, data):
-        return numpy.exp(-data['alpha'] * data['Fbar'] * potential) \
-            - numpy.exp((2 - data['alpha']) * data['Fbar'] * potential)
+            self.dataset.append(self.generateData({parameter : value}))
+        self.label = label
+        self.lfs = lfs
 
     def _legend(self, ax):
         if ax.colNum == 0 and ax.rowNum == 0:
@@ -77,16 +40,9 @@ class DepositionViewer(object):
         for color, data in zip(self._colors(), self.dataset):
             variable = data[self.parameter]
             featureDepth = data['featureDepth']
-            X, ID = self.getX(data)
             maxFeatureDepth = max(featureDepth, maxFeatureDepth)
-            theta = data['theta'][:ID + 1]
-            potential = data['potential'][:ID + 1]
-            cupric = data['cupric'][:ID + 1]
-            suppressor = data['suppressor'][:ID + 1]
-            I0 = data['i0'] + data['i1'] * theta
-            cbar = cupric / data['bulkCupric']
-            current = cbar * I0 * self.E(-potential, data)
-            depositionRate = data['omega'] * current / data['charge'] / data['faradaysConstant']
+            
+            depositionRate, theta, potential, cupric, suppressor, X, dx = self.getDepositionRate(data)
             
             if 'times' in self.label:
                 def me(n):
@@ -116,7 +72,6 @@ class DepositionViewer(object):
 
             print '------------'
             print self.parameter + ' value: ' + str(data[self.parameter])
-            print 'voltage drop',-data['appliedPotential'] - potential[ID]
 
         xticks = self._xticks()
         ax = pylab.axes(figDeposition)
