@@ -5,7 +5,7 @@ from fipy import Grid1D
 import numpy
 
 from extremefill.dicttable import DictTable
-from extremefill.main import run
+from extremefill.simulation import Simulation
 
 class Viewer(object):
     def __init__(self, datafile='data.h5'):
@@ -21,7 +21,10 @@ class Viewer(object):
             data = h5data[h5key]
         else:
             print 'generating data for ' + h5key
-            data = run(totalSteps=10, **parameters)
+            parameters['totalSteps'] = 10
+            simulation = Simulation(**parameters)
+            simulation.run()
+            data = simulation.parameters
             h5data[h5key] = data
         return data
 

@@ -6,10 +6,11 @@ from extremefill.featureDepthViewer import FeatureDepthViewer
 from extremefill.kPlusVkMinusViewer import KPlusVkMinusViewer
 from extremefill.appliedPotentialVbulkSuppressorViewer import AppliedPotentialVbulkSuppressorViewer
 from extremefill.bulkSuppressorViewer import BulkSuppressorViewer
+from extremefill.schematicViewer import SchematicViewer
 
 ## figure ordering from the paper
 viewers = (None,
-           None,
+           SchematicViewer,
            KPlusViewer,
            KMinusViewer,
            KPlusVkMinusViewer,
@@ -25,7 +26,7 @@ def generateFigures(filesuffix=('.png',), datafile='data.h5'):
             Viewer(datafile=datafile).plot(filesuffix=filesuffix)
 
 def generateFigure(number, filesuffix=('.png',), datafile='data.h5'):
-    Viewer = viewers[number]
+    Viewer = viewers[number - 1]
     if Viewer is not None:
         Viewer(datafile=datafile).plot(filesuffix=filesuffix)
            
