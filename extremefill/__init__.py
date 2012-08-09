@@ -27,7 +27,7 @@ def generateFigures(filesuffix=('.png',), datafile='data.h5'):
 def generateFigure(number, filesuffix=('.png',), datafile='data.h5'):
     Viewer = viewers[number]
     if Viewer is not None:
-        Viewer(datafile=datafile)).plot(filesuffix=filesuffix)
+        Viewer(datafile=datafile).plot(filesuffix=filesuffix)
            
            
 
