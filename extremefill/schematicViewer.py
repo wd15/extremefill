@@ -4,7 +4,7 @@ from matplotlib.patches import FancyArrowPatch
 from extremefill.simulation import Simulation
 
 class SchematicViewer(object):
-    def __init__(self, datafile):
+    def __init__(self, datafile=None):
         pass
 
     def plot(self, filesuffix=('.png',)):

@@ -42,9 +42,23 @@ class Simulation(object):
                                'perimeterRatio' : 1. / 2.8e-6 * 0.093,
                                'areaRatio' : 0.093,
                                'capacitance' : 0.3}
+
         self.parameters = self.baseParameters.copy()
+
         for k, v in kwargs.items():
             self.parameters[k] = v
+
+
+        gasConstant = self.parameters['gasConstant']
+        temperature = self.parameters['temperature']
+        faradaysConstant = self.parameters['faradaysConstant']
+        perimeterRatio = self.parameters['perimeterRatio']
+        Fbar = faradaysConstant / gasConstant / temperature
+        trenchWidth = 2 * 0.093 / perimeterRatio
+        fieldWidth = 2 / perimeterRatio
+        self.parameters['Fbar'] = Fbar
+        self.parameters['trenchWidth'] = trenchWidth
+        self.parameters['fieldWidth'] = fieldWidth
         
     def run(self):
         dt = self.parameters['dt']
@@ -63,8 +77,6 @@ class Simulation(object):
         diffusionCupric = self.parameters['diffusionCupric']
         appliedPotential = self.parameters['appliedPotential']
         faradaysConstant = self.parameters['faradaysConstant']
-        gasConstant = self.parameters['gasConstant']
-        temperature = self.parameters['temperature']
         alpha = self.parameters['alpha']
         charge = self.parameters['charge']
         bulkCupric = self.parameters['bulkCupric']
@@ -78,9 +90,8 @@ class Simulation(object):
         perimeterRatio = self.parameters['perimeterRatio']
         areaRatio = self.parameters['areaRatio']
         capacitance = self.parameters['capacitance']
+        Fbar = self.parameters['Fbar']
 
-        Fbar = faradaysConstant / gasConstant / temperature
-        self.parameters['Fbar'] = Fbar
         epsilon = 1e-30 
 
         L = delta + featureDepth
