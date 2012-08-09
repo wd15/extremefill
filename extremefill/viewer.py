@@ -21,7 +21,7 @@ class Viewer(object):
             data = h5data[h5key]
         else:
             print 'generating data for ' + h5key
-            data = run(totalSteps=10, **parameters)
+            data = run(totalSteps=400, **parameters)
             h5data[h5key] = data
         return data
 
