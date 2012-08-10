@@ -92,7 +92,7 @@ with no suppressor and no cupric depeletion.
 >>> appliedPotential = -0.275
 >>> simulation = Simulation()
 >>> simulation.run(delta=100e-6,
-...                deltaRef=50e-6,
+...                deltaRef=200e-6,
 ...                featureDepth=0.0,
 ...                i0=i0,
 ...                i1=0.0,
@@ -102,21 +102,23 @@ with no suppressor and no cupric depeletion.
 ...                gasConstant=R,
 ...                alpha=alpha,
 ...                temperature=T,
-...                totalSteps=10)
+...                totalSteps=200,
+...                dt=.5e-7,
+...                dtMax=.5e-7,
+...                sweeps=5)
 
->>> timesScipy, potentialsScipy = SimulationODE(deltaRef=0.03).run()
->>> print simulation.parameters['potentials']
->>> print potentialsScipy
+>>> timesScipy, potentialsScipy = SimulationODE().run(deltaRef=200e-6)
 >>> print numpy.allclose(simulation.parameters['potentials'], potentialsScipy, atol=1e-4)
 True
 
->>> import pylab
->>> pylab.figure()
->>> pylab.plot(times, potentials, timesScipy, potentialsScipy)
->>> pylab.ylabel(r'$\phi\left(0\right)$ (V)')
->>> pylab.xlabel(r'$t$ (s)')
->>> pylab.savefig('FiPyVScipy.png')
->>> raw_input('stopped')
+>>> ##import pylab
+>>> ##pylab.figure()
+>>> ##pylab.plot(timesScipy, simulation.parameters['potentials'], timesScipy, potentialsScipy)
+>>> ##pylab.ylabel(r'$\phi\left(0\right)$ (V)')
+>>> ##pylab.xlabel(r'$t$ (s)')
+>>> ##pylab.savefig('FiPyVScipy.png')
+>>> ##raw_input('stopped')
+
 Agreement is good for :math:`\psi`.
 
 .. image:: FiPyVScipy.*
@@ -132,29 +134,30 @@ correct in the absence of any suppressor.
 >>> charge = 2
 >>> cinf = 1000.
 
->>> simulation = Simulation().run(featureDepth=0.0,
-...                               i0=i0,
-...                               alpha=alpha,
-...                               i1=0.0,
-...                               view=True,
-...                               dt=1e-6,
-...                               dtMax=10.,
-...                               totalSteps=200,
-...                               PRINT=True,
-...                               appliedPotential=appliedPotential,
-...                               faradaysConstant=F,
-...                               gasConstant=R,
-...                               delta=delta,
-...                               diffusionCupric=D,
-...                               charge=charge,
-...                               bulkCupric=cinf)
+>>> simulation = Simulation()
+>>> simulation.run(featureDepth=0.0,
+...                i0=i0,
+...                alpha=alpha,
+...                i1=0.0,
+...                view=False,
+...                dt=1e-6,
+...                dtMax=10.,
+...                totalSteps=200,
+...                PRINT=False,
+...                appliedPotential=appliedPotential,
+...                faradaysConstant=F,
+...                gasConstant=R,
+...                delta=delta,
+...                diffusionCupric=D,
+...                charge=charge,
+...                bulkCupric=cinf)
 
 >>> def iF0():
 ...     Fbar = F / R / T
-...     V = potentials[-1] 
+...     V = simulation.parameters['potentials'][-1] 
 ...     return i0 * (numpy.exp(-alpha * Fbar * V) - numpy.exp((2 - alpha) * Fbar * V))
 
->>> cupric = simualtion.parameters['cupric']
+>>> cupric = simulation.parameters['cupric']
 >>> print numpy.allclose(1 / (1 + iF0() * delta / D / charge / F / cinf), cupric[0] / cinf, rtol=1e-3)
 True
 
@@ -316,7 +319,7 @@ class Simulation(object):
             dt = dt * 1e+10
             dt = min((dt, dtMax))
             dt = max((dt, dtMin))
-            potentials.append(potential[0])
+            potentials.append(-float(potential[0]))
         if view:
             viewer.plot()
 
@@ -341,29 +344,25 @@ class SimulationODE(object):
 
         Fbar = faradaysConstant / gasConstant / temperature ## 1 / V
     
-        def iF(xi):
-            V = appliedVoltage - xi
-            return i0 * (numpy.exp(-alpha * Fbar * V) - numpy.exp((2 - alpha) * Fbar * V))
+        def iF(potential):
+            return i0 * (numpy.exp(alpha * Fbar * potential) - numpy.exp(-(2 - alpha) * Fbar * potential))
 
-        def iFderivative(xi):
-            V = appliedVoltage - xi
-            return i0 * (alpha * Fbar * numpy.exp(-alpha * Fbar * V) \
-                             + (2 - alpha) * Fbar * numpy.exp((2 - alpha) * Fbar * V))
+        def iFderivative(potential):
+            return i0 * (alpha * Fbar * numpy.exp(alpha * Fbar * potential) \
+                   + (2 - alpha) * Fbar * numpy.exp(-(2 - alpha) * Fbar * potential))
 
         def RHS(t, y):
-            psi = y[0]
-            psi0 = (1 - deltaRef / delta) * psi
-            return numpy.array((-iF(psi - psi0) / capacitance  - kappa * psi / delta / capacitance,))
+            potential = y[0]
+            return numpy.array((-iF(potential) / capacitance  - kappa * (potential + appliedVoltage) / deltaRef / capacitance,))
 
         def jacobian(t, y):
-            psi = y[0]
-            psi0 = (1 - deltaRef / delta) * psi
-            return numpy.array((-iFderivative(psi - psi0) / capacitance  - kappa / delta / capacitance,))
+            potential = y[0]
+            return numpy.array((-iFderivative(potential) / capacitance  - kappa / deltaRef / capacitance,))
 
         from scipy.integrate import ode
         integrator = ode(RHS, jacobian).set_integrator('vode', method='bdf', with_jacobian=True)
-        initialValue = 0 ##appliedVoltage + (delta - deltaRef) / deltaRef * appliedVoltage
-        integrator.set_initial_value((initialValue,), 0.)
+        initialValue = -appliedVoltage # + (delta - deltaRef) / deltaRef * appliedVoltage
+        s = integrator.set_initial_value((initialValue,), 0.)
 
         totalSteps = 200
         dt = .5e-7
@@ -372,15 +371,14 @@ class SimulationODE(object):
         step = 0
 
         while integrator.successful() and step < totalSteps:
-            integrator.integrate(integrator.t + dt)
+            null = integrator.integrate(integrator.t + dt)
             times[step] = integrator.t
-            psi =  integrator.y[0]
-            psi0 = (1 - deltaRef / delta) * psi
-            potentialSciPy[step] = appliedVoltage - psi + psi0
+            potential =  integrator.y[0]
+            potentialSciPy[step] = -potential
             step += 1
 
-        return numpy.array(times), numpy.array(potentialSciPy)
-
+        return numpy.array(times), numpy.array(potentialSciPy) 
+ 
 if __name__ == '__main__':
     import fipy.tests.doctestPlus
     exec(fipy.tests.doctestPlus._getScript())
