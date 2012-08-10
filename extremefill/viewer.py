@@ -21,9 +21,8 @@ class Viewer(object):
             data = h5data[h5key]
         else:
             print 'generating data for ' + h5key
-            parameters['totalSteps'] = 10
-            simulation = Simulation(**parameters)
-            simulation.run()
+            simulation = Simulation()
+            simulation.run(totalSteps=10, **parameters)
             data = simulation.parameters
             h5data[h5key] = data
         return data
