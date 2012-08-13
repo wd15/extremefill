@@ -13,7 +13,9 @@ class SchematicViewer(object):
         matplotlib.rcParams['text.latex.preamble']=[r"\usepackage{amsmath}"]
 
         scale = 1e6
-        parameters = Simulation().parameters
+        simulation = Simulation()
+        simulation.run(totalSteps=0)
+        parameters = simulation.parameters
         d = parameters['delta'] * scale * 0.5
         r = parameters['fieldWidth'] * scale * 1.1
         h = parameters['featureDepth'] * scale
