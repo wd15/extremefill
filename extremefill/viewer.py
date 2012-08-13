@@ -22,7 +22,7 @@ class Viewer(object):
         else:
             print 'generating data for ' + h5key
             simulation = Simulation()
-            simulation.run(totalSteps=10, **parameters)
+            simulation.run(totalSteps=1, sweeps=100, dt=1e20, tol=1e-4, **parameters)
             data = simulation.parameters
             h5data[h5key] = data
         return data
