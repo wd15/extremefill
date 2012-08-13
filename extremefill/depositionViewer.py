@@ -7,6 +7,12 @@ matplotlib.rcParams['legend.labelspacing'] = 0.1
 matplotlib.rcParams['figure.subplot.wspace'] = 0.3
 matplotlib.rcParams['figure.subplot.hspace'] = 0.3
 from extremefill.viewer import Viewer
+from matplotlib import rc
+matplotlib.use('Agg')
+rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+rc('text', usetex=True)
+pylab.ioff()
+pylab.hold(True)
 
 class DepositionViewer(Viewer):
     def __init__(self, parameter, values, label, lfs=10, datafile='data.h5'):

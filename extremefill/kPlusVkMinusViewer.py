@@ -1,8 +1,14 @@
 import pylab
 import numpy
-
-
 from extremefill.contourViewer import ContourViewer
+import matplotlib
+from matplotlib import rc
+matplotlib.use('Agg')
+rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+rc('text', usetex=True)
+pylab.ioff()
+pylab.hold(True)
+
 
 class KPlusVkMinusViewer(ContourViewer):
     fontsize=16

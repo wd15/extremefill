@@ -3,6 +3,13 @@ import matplotlib
 from matplotlib.patches import FancyArrowPatch
 from extremefill.simulation import Simulation
 
+from matplotlib import rc
+matplotlib.use('Agg')
+rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+rc('text', usetex=True)
+pylab.ioff()
+pylab.hold(True)
+
 class SchematicViewer(object):
     def __init__(self, datafile=None):
         pass
