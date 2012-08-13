@@ -3,54 +3,18 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to electrical's documentation!
-======================================
 
-Contents:
+.. include:: ../README.rst
 
-.. toctree::
-   :maxdepth: 2 
 
-   README
+.. autofunction:: extremefill.generateFigures
 
-Modules
-=======  
+.. autofunction:: extremefill.generateFigure
 
-PotentialEquation
------------------
+.. autofunction:: extremefill.test
 
-.. automodule:: electrical.potentialEquation
+.. automodule:: extremefill.simulation
    :members:
-
-Examples
-========
-
-Potential
----------
-
-.. automodule:: electrical.potential
-   :members:
-
-Leveler
--------
-
-.. automodule:: electrical.leveler
-   :members:
-
-1D Feature
-----------
-
-.. automodule:: electrical.feature1D
-   :members:
-
-Flat Steady-State 1D
---------------------
-
-.. automodule:: electrical.flatSteadyState1D
-   :members:
-
-
-
 
 Indices and tables
 ==================
