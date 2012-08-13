@@ -7,7 +7,8 @@ from extremefill.kPlusVkMinusViewer import KPlusVkMinusViewer
 from extremefill.appliedPotentialVbulkSuppressorViewer import AppliedPotentialVbulkSuppressorViewer
 from extremefill.bulkSuppressorViewer import BulkSuppressorViewer
 from extremefill.schematicViewer import SchematicViewer
-from extremefill import simulation
+import extremefill.simulation
+from extremefill.simulation import Simulation
 
 ## figure ordering from the paper
 viewers = (None,
@@ -21,19 +22,70 @@ viewers = (None,
            BulkSuppressorViewer,
            AppliedPotentialVbulkSuppressorViewer)
 
-def generateFigures(filesuffix=('.png',), datafile='data.h5'):
-    for Viewer in viewers:
-        if Viewer is not None:
-            Viewer(datafile=datafile).plot(filesuffix=filesuffix)
+def generateFigures(filesuffix=('.png',), datafile='data.h5', fignumbers=(2, 3, 4, 5, 6, 7, 8, 9)):
+    r"""
+    Generate all the figures in the paper. By default PNG images are
+    generated.
 
-def generateFigure(number, filesuffix=('.png',), datafile='data.h5'):
-    Viewer = viewers[number - 1]
-    if Viewer is not None:
-        Viewer(datafile=datafile).plot(filesuffix=filesuffix)
+    To generate Figure 2 from the paper:
+
+    >>> import extremefill
+    >>> extremefill.generateFigures(fignumbers=3)
+
+    .. image:: kPlus.*
+       :width: 90%
+       :align: center
+       :alt: Figure 3 from the paper
+
+    :Parameters:
+      - `filesuffix`: tuple of the file suffixes of the generated images.
+      - `datafile`: path to the cached HDF5 data file to either read from or write to.
+      - `fignumbers` : tuple of figure numbers to generate. 
+    """
+    if fignumbers is int:
+        fignumbers = (fignumbers,)
+
+    for number in fignumbers:
+        for Viewer in viewers[number - 1]:
+            if Viewer is not None:
+                Viewer(datafile=datafile).plot(filesuffix=filesuffix)
 
 def test():
-    print 'hello'
-           
+    r"""
+    Run all the doctests available.
+    """
+    import doctest
+    doctest.testmod(extremefill.simulation)
+       
+def run(view=True, **parameters):
+    r"""
+    Run an individual simulation using
+    ``Simulation().run(**parameters)``.
+
+    Run the default simulation for 10 time steps
+
+    >>> import extremefill
+    >>> extremefill.run(totalSteps=10)
+
+    .. image:: kPlus10.*
+       :width: 50%
+       :align: center
+       :alt: Default simulation after 10 time steps
+
+    The negative x values represents the trench domain while the
+    positive values represent the electrolyte domain. The red, blue,
+    green and cyan curves represent normalized values for the cupric
+    concentration, adsorbed suppressor, suppressor concentration and
+    potential, respectively.
+
+    :Parameters:
+      - `view` : view the simulation as it is running
+      - `parameters` : any of the parameters used in
+        ``Simulation.run``
+    """
+    Simulation().run(view=view, **parameters)
+    raw_input('press key to continue')
+
 def _getVersion():
     from pkg_resources import get_distribution, DistributionNotFound
 

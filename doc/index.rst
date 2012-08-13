@@ -3,17 +3,18 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-
 .. include:: ../README.rst
 
+Usage
+=====
 
 .. autofunction:: extremefill.generateFigures
 
-.. autofunction:: extremefill.generateFigure
-
 .. autofunction:: extremefill.test
 
-.. automodule:: extremefill.simulation
+.. autofunction:: extremefill.run
+
+.. autoclass:: extremefill.simulation.Simulation
    :members:
 
 Indices and tables
