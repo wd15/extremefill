@@ -7,11 +7,17 @@ from fipy import numerix
 import numpy
 class Simulation(object):
     r"""
-    This example is the 1D solution, but with a via or trench, where we
-    assume that there is no lateral variation in any of the fields and the
-    deposition rate is negligible. Let's start with the equations in order
-    of potential, cupric concentration and suppressor concentration and
-    surfactant supressor integrated over space.
+
+    This class solves the 1D extreme fill problem for the equations
+    below. It can represent either a via or a trench. It is assumed
+    that there is no lateral variation in any of the fields and the
+    deposition rate is slow compared with the adjustment of the
+    fields. These are gross approximations, but the model demonstrates
+    how the critical phenomenon of extreme fill is initialized.
+
+    Let's start with the equations in order of potential, cupric
+    concentration and suppressor concentration and surfactant
+    suppressor integrated over space.
 
     .. math::
 

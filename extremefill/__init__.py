@@ -33,9 +33,11 @@ def generateFigures(filesuffix=('.png',), datafile='data.h5', fignumbers=(2, 3, 
     >>> extremefill.generateFigures(fignumbers=3)
 
     .. image:: kPlus.*
-       :width: 90%
+       :width: 50%
        :align: center
        :alt: Figure 3 from the paper
+
+    Figure 2 as it appears in the paper.
 
     :Parameters:
       - `filesuffix`: tuple of the file suffixes of the generated images.
