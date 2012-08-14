@@ -17,7 +17,7 @@ is auto-generated so most of the packages listed are not necessarily
 required. If you are having issues with installation and missing
 packages this would be a good place to start looking. If the plots are
 not generated correctly for some reason or latex errors are occurring,
-it might be work checking the maintainer's matplotlibrc_ file for
+it might be worth checking the maintainer's matplotlibrc_ file for
 clues on the correct latex packages to install and the correct
 matplotlib configuration.
 
