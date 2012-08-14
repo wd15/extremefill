@@ -1,0 +1,416 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Extreme Fill &mdash; extremefill 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="extremefill 0.1 documentation" href="#" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="#">extremefill 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="extreme-fill">
+<h1>Extreme Fill<a class="headerlink" href="#extreme-fill" title="Permalink to this headline">¶</a></h1>
+<p>This Python package generates the data required to reproduce the
+figures in <a class="reference external" href="http://dx.doi.org/10.1149/2.009210jes">Modeling Extreme Bottom-Up Filling of through Silicon
+Vias</a> by Josell, Wheeler and Moffat.</p>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<p>The main requirements are a working version of <a class="reference external" href="http://www.ctcms.nist.gov/fipy/">FiPy</a> to solve the PDEs
+and <a class="reference external" href="http://www.pytables.org/moin">PyTables</a> to store the data in an HDF5 file. See
+<a class="reference external" href="https://github.com/wd15/extremefill/blob/master/requirements.txt">requirements.txt</a> for specific versions of dependencies used to run
+this package on the maintainer&#8217;s system. The <a class="reference external" href="https://github.com/wd15/extremefill/blob/master/requirements.txt">requirements.txt</a> file
+is auto-generated so most of the packages listed are not necessarily
+required. If you are having issues with installation and missing
+packages this would be a good place to start looking. If the plots are
+not generated correctly for some reason or latex errors are occurring,
+it might be worth checking the maintainer&#8217;s <a class="reference external" href="https://github.com/wd15/env/blob/021e67f5acf1344a727f3b9eb012d9f615856f23/matplotlibrc">matplotlibrc</a> file for
+clues on the correct latex packages to install and the correct
+matplotlib configuration.</p>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>The following should get you most of the way to an install.</p>
+<div class="highlight-python"><pre>$ pip install numpy
+$ pip install tables
+$ pip install pysparse
+$ pip install fipy
+$ pip install matplotlib</pre>
+</div>
+<p>and then clone the git repository</p>
+<div class="highlight-python"><pre>$ git clone git://github.com/wd15/extremefill.git</pre>
+</div>
+<p>See the <a class="reference external" href="https://github.com/wd15/extremefill">Github project page</a> for further details. After cloning,
+install with</p>
+<div class="highlight-python"><pre>$ cd extremefill
+$ python setup.py install</pre>
+</div>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<p>Use:</p>
+<div class="highlight-python"><pre>$ cd doc
+$ make html</pre>
+</div>
+<p>to generate this documentation.</p>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="extremefill.generateFigures">
+<tt class="descclassname">extremefill.</tt><tt class="descname">generateFigures</tt><big>(</big><em>filesuffix=('.png'</em>, <em>)</em>, <em>datafile='data.h5'</em>, <em>fignumbers=(2</em>, <em>3</em>, <em>4</em>, <em>5</em>, <em>6</em>, <em>7</em>, <em>8</em>, <em>9)</em><big>)</big><a class="headerlink" href="#extremefill.generateFigures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate all the figures in the paper. By default PNG images are
+generated.</p>
+<p>To generate Figure 3 from the paper:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">extremefill</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">extremefill</span><span class="o">.</span><span class="n">generateFigures</span><span class="p">(</span><span class="n">fignumbers</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="Figure 3 from the paper" class="align-center" src="_images/kPlus.png" style="width: 50%;" />
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><ul class="first last simple">
+<li><cite>filesuffix</cite>: tuple of the file suffixes of the generated images.</li>
+<li><cite>datafile</cite>: path to the cached HDF5 data file to either read from or write to.</li>
+<li><cite>fignumbers</cite> : tuple of figure numbers to generate.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="extremefill.test">
+<tt class="descclassname">extremefill.</tt><tt class="descname">test</tt><big>(</big><big>)</big><a class="headerlink" href="#extremefill.test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run all the doctests available.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="extremefill.run">
+<tt class="descclassname">extremefill.</tt><tt class="descname">run</tt><big>(</big><em>view=True</em>, <em>**parameters</em><big>)</big><a class="headerlink" href="#extremefill.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run a single simulation using
+<a class="reference internal" href="#extremefill.simulation.Simulation.run" title="extremefill.simulation.Simulation.run"><tt class="xref py py-meth docutils literal"><span class="pre">Simulation.run</span></tt></a>.</p>
+<p>Run the default simulation for 10 time steps</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">extremefill</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">extremefill</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">totalSteps</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="Default simulation after 10 time steps" class="align-center" src="_images/kPlus10.png" style="width: 50%;" />
+<p>The negative x values represents the trench domain while the
+positive values represent the electrolyte domain. The red, blue,
+green and cyan curves represent normalized values for the cupric
+concentration, adsorbed suppressor, suppressor concentration and
+potential, respectively.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><ul class="first last simple">
+<li><cite>view</cite> : view the simulation as it is running</li>
+<li><cite>parameters</cite> : any of the parameters used in
+<a class="reference internal" href="#extremefill.simulation.Simulation.run" title="extremefill.simulation.Simulation.run"><tt class="xref py py-meth docutils literal"><span class="pre">Simulation.run</span></tt></a></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="extremefill.simulation.Simulation">
+<em class="property">class </em><tt class="descclassname">extremefill.simulation.</tt><tt class="descname">Simulation</tt><a class="headerlink" href="#extremefill.simulation.Simulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class solves the 1D extreme fill problem modeled with the
+equations below. It can represent either a via or a trench
+geometry depending on the choice of the geometric parameters. It
+is assumed that there is no lateral variation in any of the fields
+and the deposition rate is slow compared with the adjustment of
+the fields. These are gross approximations, but the model
+demonstrates how the critical phenomenon of extreme fill is
+initiated.</p>
+<p>The equations in order of potential, cupric concentration and
+suppressor concentration and surfactant suppressor integrated over
+space.</p>
+<div class="math">
+<p><img src="_images/math/dbf1e357668f133321db89454e27afeb9a6abbea.png" alt="\int_{-h}^{\delta}  dz \left[ c_{DL} \frac{\partial \psi}{\partial t} \Theta \left( z \right) =
+\kappa \frac{\partial^2 \psi}{\partial z^2} A \left(z \right) -
+i_F \left(z\right) \Theta \left(z \right)  \right]"/></p>
+</div><div class="math">
+<p><img src="_images/math/bad313d5690e9e7c8417120157d3a06aeff9ca2f.png" alt="\int_{-h}^{\delta}  dz  \left[\frac{\partial c_{\text{cu}}}{\partial t} A \left( z \right)  =
+D_{cu} \frac{\partial^2 c_{\text{cu}}}{\partial z^2} A \left(z \right)  -
+\frac{i_F\left(z\right)}{n F} \Theta \left(z \right) \right]"/></p>
+</div><div class="math">
+<p><img src="_images/math/2f5adbffdcc1479bb16a675f4de1787f74857d3b.png" alt="\int_{-h}^{\delta}  dz \left[\frac{\partial c_{\theta}}{\partial t} A \left( z \right) =
+D_{\theta} \frac{\partial^2 c_{\theta}}{\partial z^2} A \left(z \right)  -
+\Gamma k^+ c_{\theta} \left(1 - \theta \right)  \Theta \left(z \right)  \right]"/></p>
+</div><div class="math">
+<p><img src="_images/math/11b604b5527ace68ee7f299e79344301a83e9bc7.png" alt="\int_{-h}^{\delta}  dz \left[\frac{\partial \theta}{\partial t} \Theta \left( z \right) =
+k^+ c_{\theta} \left(1 - \theta \right)  \Theta \left(z \right)  -
+k^- \theta \frac{i_F \Omega}{n F} \Theta \left(z \right) \right]"/></p>
+</div><p>where <img class="math" src="_images/math/22fd4971546e9b47698b3fa2a90294c4e62c8cfd.png" alt="\Theta\left( z \right) = H\left(- z \right) \frac{l
+\left( z \right)}{A_F} + \delta \left( z \right)\left(1 -
+\frac{A_T}{A_F} \right) + \delta(z + h) \frac{A_T}{A_F}"/>. The
+cross-sectional area ratio is given by,</p>
+<div class="math">
+<p><img src="_images/math/c8623524262e50e0253f61b3ba570371d3a4e17e.png" alt="A \left( z \right) = \begin{cases}
+1 &amp; \text{when $z &gt; 0$,} \\
+\frac{A_T}{A_F} &amp; \text{when $z \le 0$,}
+\end{cases}"/></p>
+</div><p>where <img class="math" src="_images/math/c42823c4161899a74f2dd47d6a9a83c718474db6.png" alt="A_F"/> is the cross-sectional area above of the modeling
+domain and <img class="math" src="_images/math/7247ed9d644429d8de4fa3b5038b3b5ea91dc545.png" alt="A_S"/> is the cross-sectional area in the
+trench/via. The length of the perimeter is given by
+<img class="math" src="_images/math/c7281344933d2606f5fb035e08b2585aaac1df86.png" alt="l\left(z\right)"/> and is a step-function through 0. Also,
+<img class="math" src="_images/math/9d52b6524a37685acdd517bc285f2b8cb37f21fb.png" alt="\delta\left(z\right)"/> is the Dirac delta function and
+<img class="math" src="_images/math/3c005f65c8e41e419981a05e63823ac9a0069585.png" alt="H\left(z\right)"/> is the Heaviside step function with
+<img class="math" src="_images/math/95cc7a88be20ed7f17c9035af7a50a1d015eaabe.png" alt="z=-h"/> at the bottom of the trench.  The current density is
+given by,</p>
+<div class="math">
+<p><img src="_images/math/5dfabbf4f6ad2fad1f6fe1aba769e951ed2de76a.png" alt="i_F = \frac{c_{\text{cu}}}{c_{\text{cu}}^{\infty}} \left(i_0 + i_{\theta} \theta\right) \left[\exp{\left(\frac{\alpha F \psi}{R T} \right)} -  \exp{\left(-\frac{\left(2 -\alpha\right) F \psi}{R T} \right)}  \right]"/></p>
+</div><p>The boundary conditions on the working electrode are
+included in the volume integrals. Additionally,</p>
+<div class="math">
+<p><img src="_images/math/d8d5c7726a6f830f20b9a0fa5a1634b3babbf865.png" alt="\psi = -\eta_{\text{applied}} \;\; &amp; \text{at $z = \delta_{\text{ref}}$} \\
+\psi = -\eta_{\text{applied}} \;\; &amp; \text{at $t = 0$} \\
+c_{\text{cu}} = c_{\text{cu}}^{\infty} \;\; &amp; \text{at $z = \delta$} \\
+c_{\text{cu}} = c_{\text{cu}}^{\infty} \;\; &amp; \text{at $t = 0$} \\
+c_{\theta} = c_{\theta}^{\infty} \;\; &amp; \text{at $z = \delta$} \\
+c_{\theta} = c_{\theta}^{\infty} \;\; &amp; \text{at $t = 0$}\\
+\theta=0 \;\; &amp; \text{at $t = 0$}"/></p>
+</div><p>and</p>
+<div class="math">
+<p><img src="_images/math/643731624b8f5fb46c5777fb1e5e598df135ca6b.png" alt="\psi_{\text{ref}} = \psi\left(0\right) \left(1 - \frac{\delta_{\text{ref}}}{\delta}\right)"/></p>
+</div><p>The following code compares the full 1D feature model (but with no
+feature) with the simple 1D ODE for solving the electrical equation
+with no suppressor and no cupric depeletion.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">i0</span> <span class="o">=</span> <span class="mf">40.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">F</span> <span class="o">=</span> <span class="mf">9.6485e4</span> <span class="c">## C / mol = J / V / mol</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">R</span> <span class="o">=</span> <span class="mf">8.314</span> <span class="c">## J / K / mol</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="mf">298.</span> <span class="c">## K</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">appliedPotential</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.275</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">simulation</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">simulation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">delta</span><span class="o">=</span><span class="mf">100e-6</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">deltaRef</span><span class="o">=</span><span class="mf">200e-6</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">featureDepth</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">i0</span><span class="o">=</span><span class="n">i0</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">i1</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">diffusionCupric</span><span class="o">=</span><span class="mf">1e+10</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">appliedPotential</span><span class="o">=</span><span class="n">appliedPotential</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">faradaysConstant</span><span class="o">=</span><span class="n">F</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">gasConstant</span><span class="o">=</span><span class="n">R</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">temperature</span><span class="o">=</span><span class="n">T</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">totalSteps</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">dt</span><span class="o">=.</span><span class="mf">5e-7</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">dtMax</span><span class="o">=.</span><span class="mf">5e-7</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">sweeps</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">timesScipy</span><span class="p">,</span> <span class="n">potentialsScipy</span> <span class="o">=</span> <span class="n">SimulationODE</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">deltaRef</span><span class="o">=</span><span class="mf">200e-6</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">numpy</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s">&#39;potentials&#39;</span><span class="p">],</span> <span class="n">potentialsScipy</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="c">##import pylab</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c">##pylab.figure()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c">##pylab.plot(timesScipy, simulation.parameters[&#39;potentials&#39;], timesScipy, potentialsScipy)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c">##pylab.ylabel(r&#39;$\phi\left(0\right)$ (V)&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c">##pylab.xlabel(r&#39;$t$ (s)&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c">##pylab.savefig(&#39;FiPyVScipy.png&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c">##raw_input(&#39;stopped&#39;)</span>
+</pre></div>
+</div>
+<p>Agreement is good for <img class="math" src="_images/math/8ada738001410f131563551fb68731e4f302048d.png" alt="\psi"/>.</p>
+<img alt="comparison of FiPy and SciPy for the potential equation" class="align-center" src="_images/FiPyVScipy.png" style="width: 50%;" />
+<p>Another test is to check that the steady state cupric concentration is
+correct in the absence of any suppressor.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">delta</span> <span class="o">=</span> <span class="mf">150e-6</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">D</span> <span class="o">=</span> <span class="mf">5.6e-10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">charge</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cinf</span> <span class="o">=</span> <span class="mf">1000.</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">simulation</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">simulation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">featureDepth</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">i0</span><span class="o">=</span><span class="n">i0</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">i1</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">view</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">dt</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">dtMax</span><span class="o">=</span><span class="mf">10.</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">totalSteps</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">PRINT</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">appliedPotential</span><span class="o">=</span><span class="n">appliedPotential</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">faradaysConstant</span><span class="o">=</span><span class="n">F</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">gasConstant</span><span class="o">=</span><span class="n">R</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">diffusionCupric</span><span class="o">=</span><span class="n">D</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">bulkCupric</span><span class="o">=</span><span class="n">cinf</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">iF0</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="n">Fbar</span> <span class="o">=</span> <span class="n">F</span> <span class="o">/</span> <span class="n">R</span> <span class="o">/</span> <span class="n">T</span>
+<span class="gp">... </span>    <span class="n">V</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s">&#39;potentials&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> 
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">i0</span> <span class="o">*</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">Fbar</span> <span class="o">*</span> <span class="n">V</span><span class="p">)</span> <span class="o">-</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">((</span><span class="mi">2</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">Fbar</span> <span class="o">*</span> <span class="n">V</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">cupric</span> <span class="o">=</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s">&#39;cupric&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">numpy</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">iF0</span><span class="p">()</span> <span class="o">*</span> <span class="n">delta</span> <span class="o">/</span> <span class="n">D</span> <span class="o">/</span> <span class="n">charge</span> <span class="o">/</span> <span class="n">F</span> <span class="o">/</span> <span class="n">cinf</span><span class="p">),</span> <span class="n">cupric</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">cinf</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="extremefill.simulation.Simulation.run">
+<tt class="descname">run</tt><big>(</big><em>dt=4.9999999999999998e-08</em>, <em>dtMax=1e+20</em>, <em>dtMin=4.9999999999999998e-08</em>, <em>totalSteps=400</em>, <em>view=False</em>, <em>PRINT=False</em>, <em>sweeps=5</em>, <em>tol=1e-10</em>, <em>delta=0.00014999999999999999</em>, <em>deltaRef=0.029999999999999999</em>, <em>featureDepth=5.5999999999999999e-05</em>, <em>i1=-40.0</em>, <em>i0=40.0</em>, <em>diffusionCupric=2.6500000000000002e-10</em>, <em>appliedPotential=-0.25</em>, <em>faradaysConstant=96485.0</em>, <em>gasConstant=8.3140000000000001</em>, <em>temperature=298.0</em>, <em>alpha=0.40000000000000002</em>, <em>charge=2</em>, <em>bulkCupric=1000.0</em>, <em>bulkSuppressor=0.02</em>, <em>diffusionSuppressor=9.2000000000000005e-11</em>, <em>kappa=15.26</em>, <em>kPlus=150.0</em>, <em>kMinus=24500000.0</em>, <em>omega=7.0999999999999998e-06</em>, <em>gamma=2.4999999999999999e-07</em>, <em>perimeterRatio=33214.285714285717</em>, <em>areaRatio=0.092999999999999999</em>, <em>capacitance=0.29999999999999999</em><big>)</big><a class="headerlink" href="#extremefill.simulation.Simulation.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run an individual simulation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><ul class="first last simple">
+<li><cite>dt</cite>: time step size</li>
+<li><cite>dtMax</cite>: maximum time step size</li>
+<li><cite>dtMin</cite>: minimum time step size</li>
+<li><cite>totalSteps</cite>: total time steps</li>
+<li><cite>view</cite>: whether to view the simulation while running</li>
+<li><cite>PRINT</cite>: print convergence data</li>
+<li><cite>sweeps</cite>: number of sweeps at each time step</li>
+<li><cite>tol</cite>: tolerance to exit sweep loop</li>
+<li><cite>delta</cite>: boundary layer depth</li>
+<li><cite>deltaRef</cite>: distance to reference electrode</li>
+<li><cite>featureDepth</cite>: depth of the feature</li>
+<li><cite>i1</cite>: current density constant</li>
+<li><cite>i0</cite>: current density constant</li>
+<li><cite>diffusionCupric</cite>: cupric diffusion</li>
+<li><cite>appliedPotential</cite>: applied potential</li>
+<li><cite>faradaysConstant</cite>: Faraday&#8217;s constant</li>
+<li><cite>gasConstant</cite>: gas constant</li>
+<li><cite>temperature</cite>: temperature</li>
+<li><cite>alpha</cite>: kinetic factor</li>
+<li><cite>charge</cite>: charge</li>
+<li><cite>bulkCupric</cite>: bulk cupric concentration</li>
+<li><cite>bulkSuppressor</cite>: bulk suppressor concentration</li>
+<li><cite>diffusionSuppressor</cite>: suppressor diffusion</li>
+<li><cite>kappa</cite>: conductivity</li>
+<li><cite>kPlus</cite>: suppressor adsorption factor</li>
+<li><cite>kMinus</cite>: suppressor incorporation factor</li>
+<li><cite>omega</cite>: copper molar volume</li>
+<li><cite>gamma</cite>: saturation suppressor coverage,</li>
+<li><cite>perimeterRatio</cite>: feature perimeter ratio</li>
+<li><cite>areaRatio</cite>: feature area ratio</li>
+<li><cite>capacitance</cite>: capacitance</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Extreme Fill</a><ul>
+<li><a class="reference internal" href="#requirements">Requirements</a></li>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#documentation">Documentation</a></li>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="#">extremefill 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Daniel Wheeler.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>
