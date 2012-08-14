@@ -1,14 +1,14 @@
 import pylab
-import matplotlib
+
 from matplotlib.patches import FancyArrowPatch
 from extremefill.simulation import Simulation
 
-from matplotlib import rc
-matplotlib.use('Agg')
-rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
-rc('text', usetex=True)
-pylab.ioff()
-pylab.hold(True)
+# from matplotlib import rc
+# matplotlib.use('Agg')
+# rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+# rc('text', usetex=True)
+# pylab.ioff()
+# pylab.hold(True)
 
 class SchematicViewer(object):
     def __init__(self, datafile=None):
@@ -17,7 +17,7 @@ class SchematicViewer(object):
     def plot(self, filesuffix=('.png',)):
 
 
-        matplotlib.rcParams['text.latex.preamble']=[r"\usepackage{amsmath}"]
+        
 
         scale = 1e6
         simulation = Simulation()
