@@ -8,16 +8,18 @@ import numpy
 class Simulation(object):
     r"""
 
-    This class solves the 1D extreme fill problem for the equations
-    below. It can represent either a via or a trench. It is assumed
-    that there is no lateral variation in any of the fields and the
-    deposition rate is slow compared with the adjustment of the
-    fields. These are gross approximations, but the model demonstrates
-    how the critical phenomenon of extreme fill is initialized.
+    This class solves the 1D extreme fill problem modeled with the
+    equations below. It can represent either a via or a trench
+    geometry depending on the choice of the geometric parameters. It
+    is assumed that there is no lateral variation in any of the fields
+    and the deposition rate is slow compared with the adjustment of
+    the fields. These are gross approximations, but the model
+    demonstrates how the critical phenomenon of extreme fill is
+    initiated.
 
-    Let's start with the equations in order of potential, cupric
-    concentration and suppressor concentration and surfactant
-    suppressor integrated over space.
+    The equations in order of potential, cupric concentration and
+    suppressor concentration and surfactant suppressor integrated over
+    space.
 
     .. math::
 

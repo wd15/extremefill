@@ -9,14 +9,14 @@ Vias`_ by Josell, Wheeler and Moffat.
 Requirements
 ============
 
-The main requirements is a working version of FiPy_ to solve the PDEs
-and PyTables_ to store the data in an HDF5 file . See
+The main requirements are a working version of FiPy_ to solve the PDEs
+and PyTables_ to store the data in an HDF5 file. See
 `requirements.txt`_ for specific versions of dependencies used to run
 this package on the maintainer's system. The `requirements.txt`_ file
 is auto-generated so most of the packages listed are not necessarily
 required. If you are having issues with installation and missing
 packages this would be a good place to start looking. If the plots are
-not genrated correctly for some reason or latex errors are occurring,
+not generated correctly for some reason or latex errors are occurring,
 it might be work checking the maintainer's matplotlibrc_ file for
 clues on the correct latex packages to install and the correct
 matplotlib configuration.

@@ -27,7 +27,7 @@ def generateFigures(filesuffix=('.png',), datafile='data.h5', fignumbers=(2, 3, 
     Generate all the figures in the paper. By default PNG images are
     generated.
 
-    To generate Figure 2 from the paper:
+    To generate Figure 3 from the paper:
 
     >>> import extremefill
     >>> extremefill.generateFigures(fignumbers=3)
@@ -36,8 +36,6 @@ def generateFigures(filesuffix=('.png',), datafile='data.h5', fignumbers=(2, 3, 
        :width: 50%
        :align: center
        :alt: Figure 3 from the paper
-
-    Figure 3 as it appears in the paper.
 
     :Parameters:
       - `filesuffix`: tuple of the file suffixes of the generated images.
@@ -61,8 +59,9 @@ def test():
        
 def run(view=True, **parameters):
     r"""
-    Run an individual simulation using
-    ``Simulation().run(**parameters)``.
+
+    Run a single simulation using
+    :py:meth:`Simulation.run <extremefill.simulation.Simulation.run>`.
 
     Run the default simulation for 10 time steps
 
@@ -83,7 +82,9 @@ def run(view=True, **parameters):
     :Parameters:
       - `view` : view the simulation as it is running
       - `parameters` : any of the parameters used in
-        ``Simulation.run``
+        :py:meth:`Simulation.run
+        <extremefill.simulation.Simulation.run>`
+
     """
     Simulation().run(view=view, **parameters)
     raw_input('press key to continue')
