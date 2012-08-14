@@ -1,13 +1,13 @@
-import pylab
 import numpy
 from extremefill.contourViewer import ContourViewer
-import matplotlib
-from matplotlib import rc
-matplotlib.use('Agg')
-rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
-rc('text', usetex=True)
-pylab.ioff()
-pylab.hold(True)
+# import matplotlib
+# matplotlib.use('Agg')
+import pylab
+# from matplotlib import rc
+# rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+# rc('text', usetex=True)
+# pylab.ioff()
+# pylab.hold(True)
 
 
 class KPlusVkMinusViewer(ContourViewer):
@@ -45,7 +45,7 @@ class KPlusVkMinusViewer(ContourViewer):
 
         for fs in filesuffix:
             pylab.savefig('kPlusVkMinus' + fs)
-
+            pylab.close('all')
 if __name__ == '__main__':
     KPlusVkMinusViewer().plot()
 

@@ -1,18 +1,19 @@
 ## Need to import PyTables before importing fipy for some reason.
-import pylab
 import matplotlib
 matplotlib.rcParams['lines.linewidth'] = 2
 matplotlib.rcParams['legend.fontsize'] = 10
 matplotlib.rcParams['legend.labelspacing'] = 0.1
 matplotlib.rcParams['figure.subplot.wspace'] = 0.3
 matplotlib.rcParams['figure.subplot.hspace'] = 0.3
+
+# from matplotlib import rc
+# matplotlib.use('Agg')
+# rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+# rc('text', usetex=True)
+import pylab
+# pylab.ioff()
+# pylab.hold(True)
 from extremefill.viewer import Viewer
-from matplotlib import rc
-matplotlib.use('Agg')
-rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
-rc('text', usetex=True)
-pylab.ioff()
-pylab.hold(True)
 
 class DepositionViewer(Viewer):
     def __init__(self, parameter, values, label, lfs=10, datafile='data.h5'):
@@ -137,6 +138,7 @@ class DepositionViewer(Viewer):
         for fs in filesuffix:
             print self.parameter  + fs
             pylab.savefig(self.parameter + fs)
+            pylab.close('all')
 
     def subplot(self, fig):
         pass

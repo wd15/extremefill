@@ -2,11 +2,11 @@ import pylab
 import numpy
 
 from extremefill.contourViewer import ContourViewer
-import matplotlib
+# import matplotlib
 fontsize=16
-matplotlib.rcParams['legend.fontsize'] = 11
-matplotlib.rcParams['xtick.labelsize'] = fontsize
-matplotlib.rcParams['ytick.labelsize'] = fontsize
+# matplotlib.rcParams['legend.fontsize'] = 11
+# matplotlib.rcParams['xtick.labelsize'] = fontsize
+# matplotlib.rcParams['ytick.labelsize'] = fontsize
 
 class AppliedPotentialVbulkSuppressorViewer(ContourViewer):
     fontsize = fontsize

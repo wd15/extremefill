@@ -22,7 +22,7 @@ viewers = (None,
            BulkSuppressorViewer,
            AppliedPotentialVbulkSuppressorViewer)
 
-def generateFigures(filesuffix=('.png',), datafile='data.h5', fignumbers=(2, 3, 4, 5, 6, 7, 8, 9)):
+def generateFigures(filesuffix=('.png',), datafile='data.h5', fignumbers=(2, 3, 4, 5, 6, 7, 8, 9, 10)):
     r"""
     Generate all the figures in the paper. By default PNG images are
     generated.

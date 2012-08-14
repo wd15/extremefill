@@ -1,5 +1,12 @@
 ## Need to import PyTables before importing fipy for some reason.
+# import matplotlib
+# from matplotlib import rc
+# matplotlib.use('Agg')
+# rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+# rc('text', usetex=True)
 import pylab
+pylab.ioff()
+pylab.hold(True)
 import numpy
 
 from extremefill.depositionViewer import DepositionViewer
