@@ -11,7 +11,7 @@ Requirements
 
 The main requirements are a working version of FiPy_ to solve the PDEs
 and PyTables_ to store the data in an HDF5 file. See
-`requirements.txt`_ for specific versions of dependencies used to run
+`requirements.txt`_ for specific versions or dependencies used to run
 this package on the maintainer's system. The `requirements.txt`_ file
 is auto-generated so most of the packages listed are not necessarily
 required. If you are having issues with installation and missing
