@@ -1,3 +1,5 @@
+import tables
+
 from extremefill.kPlusViewer import KPlusViewer
 from extremefill.kMinusViewer import KMinusViewer
 from extremefill.appliedPotentialViewer import AppliedPotentialViewer
