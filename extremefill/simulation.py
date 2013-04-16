@@ -208,7 +208,8 @@ class Simulation(object):
             gamma=2.5e-7,
             perimeterRatio=1. / 2.8e-6 * 0.093,
             areaRatio=0.093,
-            capacitance=0.3):
+            capacitance=0.3,
+            dt_mult=1e+10):
 
         r"""
         Run an individual simulation.
@@ -317,13 +318,18 @@ class Simulation(object):
             suppressorBar = suppressor / bulkSuppressor
             suppressorBar.name = r'$\bar{c_{\theta}}$'
 
-            viewer = fipy.Viewer((theta, suppressorBar, cbar, potentialBar), datamax=1, datamin=0.0)
+            viewer = fipy.Viewer((theta, suppressorBar, cbar, potentialBar), datamax=1, datamin=0.0, xmin=-featureDepth)
 
+            viewer.axes.legend([var.name for var in viewer.vars], loc='lower right', prop={'size':16})
+            viewer.axes.tick_params(labelsize=14)
+            viewer.axes.set_xticks((-50e-6, 0e-6, 50e-6, 100e-6, 150e-6), (-50, 0, 50, 100, 150))
+            viewer.axes.set_xlabel(r'$x$ ($\mu$m)', fontsize=16)
+            
         potentials = []
         for step in range(totalSteps):
             if view:
-                viewer.axes.set_title(r'$t=%1.2e$' % t)
-                viewer.plot()
+                viewer.axes.set_title(r'$t=%1.2e$ (s)' % t, fontsize=18)
+                viewer.plot(filename='movie/movie%s.png' %  str(step).rjust(6, '0'))
 
             potential.updateOld()
             cupric.updateOld()
@@ -361,7 +367,7 @@ class Simulation(object):
 
             t += dt
 
-            dt = dt * 1e+10
+            dt = dt * dt_mult
             dt = min((dt, dtMax))
             dt = max((dt, dtMin))
             potentials.append(-float(potential[0]))
