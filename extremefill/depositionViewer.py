@@ -31,7 +31,6 @@ class DepositionViewer(Viewer):
         
     def plot(self, mulFactor=1, filesuffix='.png', colors=None):        
         
-        pylab.figure()
         figDeposition = pylab.subplot(221)
         figTheta = pylab.subplot(222)
         figSuppressor = pylab.subplot(223)
