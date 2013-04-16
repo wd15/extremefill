@@ -322,7 +322,8 @@ class Simulation(object):
 
             viewer.axes.legend([var.name for var in viewer.vars], loc='lower right', prop={'size':16})
             viewer.axes.tick_params(labelsize=14)
-            viewer.axes.set_xticks((-50e-6, 0e-6, 50e-6, 100e-6, 150e-6), (-50, 0, 50, 100, 150))
+            viewer.axes.set_xticks((-50e-6, 0e-6, 50e-6, 100e-6, 150e-6))
+            viewer.axes.set_xticklabels((-50, 0, 50, 100, 150))
             viewer.axes.set_xlabel(r'$x$ ($\mu$m)', fontsize=16)
             
         potentials = []
