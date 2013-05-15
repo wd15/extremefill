@@ -29,15 +29,20 @@ class DepositionViewer(Viewer):
         if ax.colNum == 0 and ax.rowNum == 0:
             self.legend =  pylab.legend(loc='upper right')
         
-    def plot(self, mulFactor=1, filesuffix='.png', colors=None):        
+    def plot(self, mulFactor=1, filesuffix='.png', colors=None, deposition_only=False):        
         
-        figDeposition = pylab.subplot(221)
-        figTheta = pylab.subplot(222)
-        figSuppressor = pylab.subplot(223)
-        figCupric = pylab.subplot(224)
+        if deposition_only:
+            IDs = (221, 221, 221, 221)
+        else:
+            IDs = (221, 222, 223, 224)
+
+        figDeposition = pylab.subplot(IDs[0])
+        figTheta = pylab.subplot(IDs[1])
+        figSuppressor = pylab.subplot(IDs[2])
+        figCupric = pylab.subplot(IDs[3])
+
+
         maxFeatureDepth = 0
-        print '**************'
-        print 'varying ' + self.parameter
 
         xlabel = r'$z$ $\left(\micro\metre\right)$'
         scaleFactor = 1000000
@@ -68,29 +73,23 @@ class DepositionViewer(Viewer):
             pylab.axes(figDeposition)        
             pylab.plot(X * scaleFactor, depositionRate, **kwargs)
 
-            pylab.axes(figTheta)
-            pylab.plot(X * scaleFactor, theta, **kwargs)
+            if not deposition_only:
+                pylab.axes(figTheta)
 
-            pylab.axes(figSuppressor)
-            pylab.plot(X * scaleFactor, suppressor, **kwargs)
+                pylab.plot(X * scaleFactor, theta, **kwargs)
 
-            pylab.axes(figCupric)
-            pylab.plot(X * scaleFactor, cupric, **kwargs)
+                pylab.axes(figSuppressor)
+                pylab.plot(X * scaleFactor, suppressor, **kwargs)
 
-            print '------------'
-            print self.parameter + ' value: ' + str(data[self.parameter])
+                pylab.axes(figCupric)
+                pylab.plot(X * scaleFactor, cupric, **kwargs)
+ 
+            # print '------------'
+            # print self.parameter + ' value: ' + str(data[self.parameter])
 
         xticks = self._xticks()
-        ax = pylab.axes(figDeposition)
-        self._legend(ax)
-        pylab.ylabel(r'$v$ $\left(\metre\per\second\right)$', rotation='vertical', fontsize=14)
-        pylab.xlim(xmin=-maxFeatureDepth * scaleFactor)
-        pylab.xlim(xmax=0)
-        pylab.ylim(ymax=8e-9)
-        pylab.ylim(ymin=0.0)
-        pylab.xticks(xticks)
-        pylab.title('(a)')
 
+        
         ax = pylab.axes(figTheta)
         self._legend(ax)
         pylab.ylabel(r'$\theta$', rotation='vertical')
@@ -123,13 +122,27 @@ class DepositionViewer(Viewer):
         pylab.xticks(xticks)
         pylab.title('(d)')
 
-        self.legend.labelspacing = 0
-        self.legend.columnspacing = 0.1
-        for t in self.legend.texts:
-            t.set_size(self.lfs)
+        ax = pylab.axes(figDeposition)
+        self._legend(ax)
+        pylab.ylabel(r'$v$ $\left(\metre\per\second\right)$', rotation='vertical', fontsize=14)
+        pylab.xlim(xmin=-maxFeatureDepth * scaleFactor)
+        pylab.xlim(xmax=0)
+        pylab.ylim(ymax=8e-9)
+        pylab.ylim(ymin=0.0)
+        pylab.xticks(xticks)
+        pylab.title('(a)')
+        if deposition_only:
+            pylab.title('')
+            self.legend =  pylab.legend(loc='upper right')
 
-        self.subplot(figDeposition)
+        if hasattr(self, 'legend'):
+            self.legend.labelspacing = 0
+            self.legend.columnspacing = 0.1
+            for t in self.legend.texts:
+                t.set_size(self.lfs)
 
+        if not deposition_only:
+            self.subplot(figDeposition)
 
         if type(filesuffix) is str:
             filesuffix = (filesuffix,)

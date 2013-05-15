@@ -13,9 +13,6 @@ class KPlusViewer(DepositionViewer):
         for value in 10**numpy.linspace(0, 3, 100):
             self.inlayDataset.append(self.generateData({parameter : value}))
 
-    def plot(self, filesuffix='.png'):
-        super(KPlusViewer, self).plot(filesuffix=filesuffix) 
-
     def _legend(self, ax):
         if ax.colNum == 0 and ax.rowNum == 1:
             self.legend =  pylab.legend(loc='upper left')
