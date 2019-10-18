@@ -29,7 +29,7 @@ Twisted-Names==10.1.0
 Twisted-Web==10.1.0
 VTK==5.4.2
 aeidon==0.17
-buildbot==0.8.5
+buildbot==1.8.2
 chardet==2.0.1
 configobj==4.7.2
 cups==1.0
