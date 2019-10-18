@@ -54,7 +54,7 @@ openopt==0.27.dev
 pexpect==2.3
 ply==3.3
 profiler==0.0.0
-pyOpenSSL==0.10
+pyOpenSSL==17.5.0
 pyamg==1.0.0.dev
 pyenchant==1.5.3
 pyflakes==0.5.0
