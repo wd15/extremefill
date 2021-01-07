@@ -45,7 +45,7 @@ iniparse==0.3.2
 iotop==0.4
 ipdb==0.6.1
 ipython==0.13
-lxml==2.2.8
+lxml==4.6.2
 matplotlib==1.1.0
 mpi4py==1.2.2
 numexpr==2.0.1
