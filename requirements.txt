@@ -6,7 +6,7 @@ EnvisageCore==3.1.2
 EnvisagePlugins==3.1.2
 -e svn+svn+ssh://svn@code.matforge.org/fipy/trunk@5253#egg=FiPy-3.0_dev5232-py2.6-dev_r5253
 Genshi==0.6
-Jinja2==2.6
+Jinja2==2.11.3
 MayaVi==1.5
 PAM==0.4.2
 PIL==1.1.7
