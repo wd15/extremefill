@@ -11,7 +11,7 @@ MayaVi==1.5
 PAM==0.4.2
 PIL==1.1.7
 PyVTK==0.4.74
-Pygments==1.4
+Pygments==2.7.4
 Pympler==0.2.1
 Pyste==0.9.10
 SQLAlchemy==0.7.4
