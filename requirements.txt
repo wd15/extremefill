@@ -64,7 +64,7 @@ pysparse==1.2-dev224
 python-Levenshtein==0.10.1
 python-apt==0.7.100.1-squeeze1
 python-dateutil==1.4.1
-python-ldap==2.3.11
+python-ldap==3.4.0
 pytz==2010b
 pyzmq==2.2.0
 reportbug==4.12.6
