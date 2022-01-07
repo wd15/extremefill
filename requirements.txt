@@ -33,7 +33,7 @@ buildbot==0.8.5
 chardet==2.0.1
 configobj==4.7.2
 cups==1.0
-cvxopt==1.1.2
+cvxopt==1.2.7
 decorator==3.3.2
 distribute==0.6.24
 docutils==0.8.1
