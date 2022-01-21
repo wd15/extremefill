@@ -44,7 +44,7 @@ glpk==0.3.43
 iniparse==0.3.2
 iotop==0.4
 ipdb==0.6.1
-ipython==0.13
+ipython==7.16.3
 lxml==2.2.8
 matplotlib==1.1.0
 mpi4py==1.2.2
