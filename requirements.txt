@@ -23,7 +23,7 @@ TracGit==0.12.0.5dev
 Traits==3.4.0
 TraitsBackendWX==3.4.0
 TraitsGUI==3.4.0
-Twisted==11.1.0
+Twisted==22.4.0
 Twisted-Core==10.1.0
 Twisted-Names==10.1.0
 Twisted-Web==10.1.0
