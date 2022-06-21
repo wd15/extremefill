@@ -49,7 +49,7 @@ lxml==2.2.8
 matplotlib==1.1.0
 mpi4py==1.2.2
 numexpr==2.0.1
-numpy==1.6.1
+numpy==1.22.0
 openopt==0.27.dev
 pexpect==2.3
 ply==3.3
