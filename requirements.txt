@@ -27,7 +27,7 @@ Twisted==11.1.0
 Twisted-Core==10.1.0
 Twisted-Names==10.1.0
 Twisted-Web==10.1.0
-VTK==5.4.2
+VTK==9.0.1
 aeidon==0.17
 buildbot==0.8.5
 chardet==2.0.1
